@@ -3,3 +3,7 @@ access_cpss_sync_config_user,cpss.sync.config.user,model_cpss_sync_config,cpss_s
 access_cpss_sync_config_admin,cpss.sync.config.admin,model_cpss_sync_config,cpss_sync_inter_company_base.group_sync_admin,1,1,1,1
 access_cpss_sync_log_user,cpss.sync.log.user,model_cpss_sync_log,cpss_sync_inter_company_base.group_sync_user,1,0,0,0
 access_cpss_sync_log_admin,cpss.sync.log.admin,model_cpss_sync_log,cpss_sync_inter_company_base.group_sync_admin,1,1,1,1
+access_cpss_sync_tax_mapping_user,cpss.sync.tax.mapping.user,model_cpss_sync_tax_mapping,cpss_sync_inter_company_base.group_sync_user,1,0,0,0
+access_cpss_sync_tax_mapping_admin,cpss.sync.tax.mapping.admin,model_cpss_sync_tax_mapping,cpss_sync_inter_company_base.group_sync_admin,1,1,1,1
+access_cpss_sync_account_mapping_user,cpss.sync.account.mapping.user,model_cpss_sync_account_mapping,cpss_sync_inter_company_base.group_sync_user,1,0,0,0
+access_cpss_sync_account_mapping_admin,cpss.sync.account.mapping.admin,model_cpss_sync_account_mapping,cpss_sync_inter_company_base.group_sync_admin,1,1,1,1

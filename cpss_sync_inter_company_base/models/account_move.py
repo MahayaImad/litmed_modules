@@ -537,15 +537,22 @@ class AccountMove(models.Model):
         Tax = self.env['account.tax'].sudo()
         resultat = Tax
         for taxe in taxes_orig:
+            # Stratégie 0 : correspondance forcée depuis la configuration
+            correspondance = config.get_taxe_cible_forcee(taxe)
+
+            # `price_include` distingue une taxe HT d'une taxe TTC : les deux
+            # ne sont jamais interchangeables.
             domaine = [
                 ('company_id', '=', config.societe_cible_id.id),
                 ('type_tax_use', '=', taxe.type_tax_use),
                 ('amount_type', '=', taxe.amount_type),
+                ('price_include', '=', taxe.price_include),
             ]
             # Stratégie 1 : nom + montant (correspondance exacte)
-            correspondance = Tax.search(
-                domaine + [('name', '=', taxe.name), ('amount', '=', taxe.amount)],
-                limit=1)
+            if not correspondance:
+                correspondance = Tax.search(
+                    domaine + [('name', '=', taxe.name), ('amount', '=', taxe.amount)],
+                    limit=1)
 
             # Stratégie 2 : montant seul, à condition que le résultat soit unique
             if not correspondance:
@@ -554,26 +561,32 @@ class AccountMove(models.Model):
                     correspondance = candidates
                 elif len(candidates) > 1:
                     raise UserError(_(
-                        "La taxe « %(taxe)s » (%(montant)s) correspond à "
-                        "plusieurs taxes de la société %(societe)s : %(liste)s.\n\n"
-                        "Renommez la taxe cible à l'identique pour lever "
-                        "l'ambiguïté."
+                        "La taxe « %(taxe)s » (%(montant)s, %(mode)s) correspond "
+                        "à plusieurs taxes de la société %(societe)s :\n%(liste)s\n\n"
+                        "Déclarez la correspondance à utiliser dans "
+                        "Configuration Synchronisation > onglet « Correspondances "
+                        "de Taxes »."
                     ) % {
                         'taxe': taxe.name,
                         'montant': taxe.amount,
+                        'mode': _("TTC") if taxe.price_include else _("HT"),
                         'societe': config.societe_cible_id.name,
-                        'liste': ", ".join(candidates.mapped('name')),
+                        'liste': "\n".join("• %s" % nom
+                                           for nom in candidates.mapped('name')),
                     })
 
             if not correspondance:
                 raise UserError(_(
                     "Aucune taxe équivalente à « %(taxe)s » (%(montant)s, "
-                    "%(usage)s) dans la société %(societe)s.\n\n"
-                    "Créez la taxe correspondante avant de synchroniser."
+                    "%(usage)s, %(mode)s) dans la société %(societe)s.\n\n"
+                    "Créez la taxe correspondante, ou déclarez la correspondance "
+                    "dans Configuration Synchronisation > onglet "
+                    "« Correspondances de Taxes »."
                 ) % {
                     'taxe': taxe.name,
                     'montant': taxe.amount,
                     'usage': taxe.type_tax_use,
+                    'mode': _("TTC") if taxe.price_include else _("HT"),
                     'societe': config.societe_cible_id.name,
                 })
             resultat |= correspondance
@@ -589,6 +602,11 @@ class AccountMove(models.Model):
         """
         if not compte_orig:
             return self.env['account.account']
+
+        # Stratégie 0 : correspondance forcée depuis la configuration
+        compte = config.get_compte_cible_force(compte_orig)
+        if compte:
+            return compte
 
         Account = self.env['account.account'].sudo()
 
@@ -610,7 +628,12 @@ class AccountMove(models.Model):
                     break
 
         if not compte:
-            raise UserError(_("❌ Compte %(code)s introuvable dans %(societe)s\n\n%(diag)s") % {
+            raise UserError(_(
+                "Compte %(code)s introuvable dans %(societe)s.\n\n%(diag)s\n\n"
+                "Créez le compte correspondant, ou déclarez la correspondance "
+                "dans Configuration Synchronisation > onglet "
+                "« Correspondances de Comptes »."
+            ) % {
                 'code': compte_orig.code,
                 'societe': config.societe_cible_id.name,
                 'diag': self._diagnostiquer_comptes_manquants(compte_orig, config),

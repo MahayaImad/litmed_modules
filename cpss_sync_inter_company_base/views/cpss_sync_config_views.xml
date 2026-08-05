@@ -62,6 +62,43 @@
                             synchronisation des documents qui les utilisent échouera.
                         </div>
 
+                        <notebook>
+                            <page string="Correspondances de Taxes" name="mapping_taxes">
+                                <p class="text-muted">
+                                    À renseigner uniquement lorsque la recherche automatique
+                                    échoue ou reste ambiguë — par exemple deux taxes cibles de
+                                    même montant. Ces correspondances sont prioritaires.
+                                </p>
+                                <field name="mapping_taxe_ids" nolabel="1">
+                                    <tree editable="bottom">
+                                        <field name="taxe_source_id"
+                                               domain="[('company_id', '=', parent.societe_operationnelle_id)]"
+                                               options="{'no_create': True}"/>
+                                        <field name="taxe_cible_id"
+                                               domain="[('company_id', '=', parent.societe_cible_id)]"
+                                               options="{'no_create': True}"/>
+                                    </tree>
+                                </field>
+                            </page>
+                            <page string="Correspondances de Comptes" name="mapping_comptes">
+                                <p class="text-muted">
+                                    À renseigner lorsque le code du compte cible ne peut pas être
+                                    déduit de celui du compte d'origine. Ces correspondances sont
+                                    prioritaires.
+                                </p>
+                                <field name="mapping_compte_ids" nolabel="1">
+                                    <tree editable="bottom">
+                                        <field name="compte_source_id"
+                                               domain="[('company_id', '=', parent.societe_operationnelle_id)]"
+                                               options="{'no_create': True}"/>
+                                        <field name="compte_cible_id"
+                                               domain="[('company_id', '=', parent.societe_cible_id)]"
+                                               options="{'no_create': True}"/>
+                                    </tree>
+                                </field>
+                            </page>
+                        </notebook>
+
                     </sheet>
                 </form>
             </field>
