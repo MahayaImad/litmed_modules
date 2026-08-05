@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rapport Dispositifs Médicaux</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background-color: #f8f9fa;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        /* Header */
+        .header {
+            background: linear-gradient(135deg, #1e88e5 0%, #1565c0 100%);
+            color: white;
+            padding: 40px 30px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.2em;
+            margin-bottom: 10px;
+        }
+
+        .header .subtitle {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+
+        .badge {
+            display: inline-block;
+            background-color: rgba(255,255,255,0.2);
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.85em;
+            margin-top: 15px;
+        }
+
+        /* Sections */
+        .section {
+            background: white;
+            border-radius: 10px;
+            padding: 25px 30px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+        }
+
+        .section h2 {
+            color: #1565c0;
+            font-size: 1.4em;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #e3f2fd;
+        }
+
+        .section h3 {
+            color: #424242;
+            font-size: 1.1em;
+            margin: 20px 0 10px 0;
+        }
+
+        /* Features */
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-top: 15px;
+        }
+
+        .feature-card {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 20px;
+            border-left: 4px solid #1e88e5;
+        }
+
+        .feature-card h4 {
+            color: #1565c0;
+            margin-bottom: 8px;
+            font-size: 1em;
+        }
+
+        .feature-card p {
+            font-size: 0.9em;
+            color: #666;
+        }
+
+        .feature-card .icon {
+            font-size: 1.5em;
+            margin-bottom: 10px;
+        }
+
+        /* Liste */
+        ul {
+            list-style: none;
+            padding-left: 0;
+        }
+
+        ul li {
+            padding: 8px 0 8px 25px;
+            position: relative;
+        }
+
+        ul li::before {
+            content: "✓";
+            position: absolute;
+            left: 0;
+            color: #4caf50;
+            font-weight: bold;
+        }
+
+        /* Table */
+        .table-container {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+            font-size: 0.9em;
+        }
+
+        table th {
+            background: #1565c0;
+            color: white;
+            padding: 12px 10px;
+            text-align: left;
+            font-weight: 600;
+        }
+
+        table td {
+            padding: 10px;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        table tr:nth-child(even) {
+            background-color: #f5f5f5;
+        }
+
+        table tr:hover {
+            background-color: #e3f2fd;
+        }
+
+        /* Screenshots placeholder */
+        .screenshot {
+            background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
+            border-radius: 8px;
+            padding: 40px;
+            text-align: center;
+            color: #1565c0;
+            margin: 15px 0;
+            border: 2px dashed #90caf9;
+        }
+
+        /* Alert boxes */
+        .alert {
+            padding: 15px 20px;
+            border-radius: 8px;
+            margin: 15px 0;
+        }
+
+        .alert-info {
+            background-color: #e3f2fd;
+            border-left: 4px solid #1e88e5;
+            color: #1565c0;
+        }
+
+        .alert-warning {
+            background-color: #fff3e0;
+            border-left: 4px solid #ff9800;
+            color: #e65100;
+        }
+
+        .alert-success {
+            background-color: #e8f5e9;
+            border-left: 4px solid #4caf50;
+            color: #2e7d32;
+        }
+
+        /* Code */
+        code {
+            background-color: #f5f5f5;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9em;
+            color: #d32f2f;
+        }
+
+        /* Dependencies */
+        .dependencies {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .dep-badge {
+            background: #e8f5e9;
+            color: #2e7d32;
+            padding: 5px 12px;
+            border-radius: 15px;
+            font-size: 0.85em;
+            font-weight: 500;
+        }
+
+        /* Footer */
+        .footer {
+            text-align: center;
+            padding: 30px;
+            color: #666;
+            font-size: 0.9em;
+        }
+
+        .footer a {
+            color: #1565c0;
+            text-decoration: none;
+        }
+
+        /* Responsive */
+        @media (max-width: 600px) {
+            .header h1 {
+                font-size: 1.6em;
+            }
+
+            .section {
+                padding: 20px;
+            }
+
+            .features-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+
+        <!-- Header -->
+        <div class="header">
+            <h1>📋 Rapport Dispositifs Médicaux</h1>
+            <p class="subtitle">Génération de rapports Excel conformes aux exigences du Ministère de l'Industrie Pharmaceutique</p>
+            <span class="badge">Version 16.0.1.0.0</span>
+        </div>
+
+        <!-- Description -->
+        <div class="section">
+            <h2>📌 Description</h2>
+            <p>
+                Ce module permet de générer des rapports mensuels Excel détaillant les mouvements de stock
+                (entrées et sorties) des <strong>dispositifs médicaux</strong>. Le rapport est conforme au format
+                exigé par le <strong>Ministère de l'Industrie Pharmaceutique</strong>.
+            </p>
+
+            <div class="alert alert-info">
+                <strong>💡 Cas d'usage :</strong> Chaque mois, exportez facilement un fichier Excel récapitulant
+                tous les mouvements de vos dispositifs médicaux avec traçabilité complète par lots.
+            </div>
+        </div>
+
+        <!-- Features -->
+        <div class="section">
+            <h2>✨ Fonctionnalités</h2>
+
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="icon">📦</div>
+                    <h4>Gestion des Dispositifs Médicaux</h4>
+                    <p>Nouveaux champs dédiés sur les produits : désignation DM, pays d'origine, certification, fabricant.</p>
+                </div>
+
+                <div class="feature-card">
+                    <div class="icon">📊</div>
+                    <h4>Export Excel</h4>
+                    <p>Génération de rapports Excel formatés avec en-têtes, mise en forme et données structurées.</p>
+                </div>
+
+                <div class="feature-card">
+                    <div class="icon">🔍</div>
+                    <h4>Traçabilité par Lots</h4>
+                    <p>Suivi complet avec numéros de lots, dates de fabrication et dates de péremption.</p>
+                </div>
+
+                <div class="feature-card">
+                    <div class="icon">📅</div>
+                    <h4>Filtrage Flexible</h4>
+                    <p>Sélection de la période et du type de mouvement (entrées, sorties ou les deux).</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Colonnes du rapport -->
+        <div class="section">
+            <h2>📑 Colonnes du Rapport Excel</h2>
+
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Colonne</th>
+                            <th>Source dans Odoo</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>ETABLISSEMENT PHARMACEUTIQUE</strong></td>
+                            <td>Client/Fournisseur du picking</td>
+                        </tr>
+                        <tr>
+                            <td><strong>DESIGNATION DU DISPOSITIF MEDICAL</strong></td>
+                            <td>Champ <code>medical_device_designation</code></td>
+                        </tr>
+                        <tr>
+                            <td><strong>DENOMINATION COMMERCIALE OU TYPE</strong></td>
+                            <td>Nom du produit</td>
+                        </tr>
+                        <tr>
+                            <td><strong>CONDITIONNEMENT</strong></td>
+                            <td>Packaging produit</td>
+                        </tr>
+                        <tr>
+                            <td><strong>SOCIETE LABORATOIRE FABRICANT</strong></td>
+                            <td>Champ <code>manufacturer_id</code></td>
+                        </tr>
+                        <tr>
+                            <td><strong>PAYS D'ORIGINE ET CERTIFICATION</strong></td>
+                            <td><code>country_origin_id</code> + <code>certification_type</code></td>
+                        </tr>
+                        <tr>
+                            <td><strong>DATE DE FABRICATION</strong></td>
+                            <td>Champ <code>manufacturing_date</code> du lot</td>
+                        </tr>
+                        <tr>
+                            <td><strong>DATE DE PEREMPTION</strong></td>
+                            <td>Date d'expiration du lot</td>
+                        </tr>
+                        <tr>
+                            <td><strong>N° DE LOTS OU N° DE SERIE</strong></td>
+                            <td>Nom du lot <code>stock.lot</code></td>
+                        </tr>
+                        <tr>
+                            <td><strong>QUANTITE EN STOCK</strong></td>
+                            <td>Stock disponible actuel</td>
+                        </tr>
+                        <tr>
+                            <td><strong>QTE LIVREE AUX CLIENTS</strong></td>
+                            <td>Quantité du mouvement (sorties)/ (entrées)</td>
+                        </tr>
+                        <tr>
+                            <td><strong>A LA DATE DU</strong></td>
+                            <td>Date du mouvement de stock</td>
+                        </tr>
+                        <tr>
+                            <td><strong>OBSERVATION</strong></td>
+                            <td>Type : "Entrée" ou "Sortie"</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Configuration -->
+        <div class="section">
+            <h2>⚙️ Configuration</h2>
+
+            <h3>1. Activer le suivi par lots</h3>
+            <ul>
+                <li>Aller dans <strong>Inventaire → Configuration → Paramètres</strong></li>
+                <li>Activer <strong>Numéros de lots et numéros de série</strong></li>
+                <li>Activer <strong>Dates d'expiration</strong></li>
+            </ul>
+
+            <h3>2. Configurer un produit Dispositif Médical</h3>
+            <ul>
+                <li>Aller dans <strong>Inventaire → Dispositifs Médicaux</strong></li>
+                <li>Créer ou modifier un produit</li>
+                <li>Cocher <strong>"Est un Dispositif Médical"</strong></li>
+                <li>Renseigner les champs : désignation, pays d'origine, certification, fabricant</li>
+            </ul>
+
+            <h3>3. Configurer les lots</h3>
+            <ul>
+                <li>Aller dans <strong>Inventaire → Produits → Lots/Numéros de série</strong></li>
+                <li>Renseigner la <strong>Date de Fabrication</strong> (nouveau champ)</li>
+                <li>Renseigner la <strong>Date d'expiration</strong></li>
+            </ul>
+
+            <div class="alert alert-warning">
+                <strong>⚠️ Important :</strong> Seuls les produits marqués comme "Dispositif Médical"
+                apparaîtront dans le rapport.
+            </div>
+        </div>
+
+        <!-- Utilisation -->
+        <div class="section">
+            <h2>🖨️ Générer un Rapport</h2>
+
+            <ol style="padding-left: 20px;">
+                <li style="padding: 8px 0;">Aller dans <strong>Inventaire → Dispositifs Médicaux → Rapport Mensuel (Excel)</strong></li>
+                <li style="padding: 8px 0;">Sélectionner la <strong>période</strong> (date début / date fin)</li>
+                <li style="padding: 8px 0;">Choisir le <strong>type de mouvement</strong> :
+                    <ul style="margin-top: 5px; margin-left: 20px;">
+                        <li style="padding: 3px 0;">Entrées et Sorties</li>
+                        <li style="padding: 3px 0;">Entrées uniquement</li>
+                        <li style="padding: 3px 0;">Sorties uniquement</li>
+                    </ul>
+                </li>
+                <li style="padding: 8px 0;">Cliquer sur <strong>"Générer le Rapport Excel"</strong></li>
+                <li style="padding: 8px 0;">Le fichier <code>.xlsx</code> se télécharge automatiquement</li>
+            </ol>
+
+            <div class="screenshot">
+                📷 Capture d'écran du wizard de génération
+            </div>
+        </div>
+
+        <!-- Dépendances -->
+        <div class="section">
+            <h2>📦 Dépendances</h2>
+
+            <h3>Modules Odoo requis :</h3>
+            <div class="dependencies">
+                <span class="dep-badge">base</span>
+                <span class="dep-badge">product</span>
+                <span class="dep-badge">stock</span>
+                <span class="dep-badge">purchase</span>
+                <span class="dep-badge">sale_stock</span>
+                <span class="dep-badge">product_expiry</span>
+            </div>
+
+            <h3 style="margin-top: 20px;">Bibliothèque Python :</h3>
+            <div class="alert alert-info">
+                <code>pip install xlsxwriter</code>
+            </div>
+        </div>
+
+        <!-- Support -->
+        <div class="section">
+            <h2>🆘 Support</h2>
+            <p>Pour toute question ou assistance :</p>
+            <ul>
+                <li>Email : <a href="mailto:support@cpss-dz.com">support@cpss-dz.com</a></li>
+                <li>Téléphone : +213 660 36 63 60</li>
+                <li>Site web : <a href="https://www.cpss-dz.com" target="_blank">www.cpss-dz.com</a></li>
+            </ul>
+        </div>
+
+        <!-- Footer -->
+        <div class="footer">
+            <p>Développé avec ❤️ pour Odoo 16</p>
+            <p>© 2026 CPSS - Tous droits réservés</p>
+        </div>
+
+    </div>
+</body>
+</html>

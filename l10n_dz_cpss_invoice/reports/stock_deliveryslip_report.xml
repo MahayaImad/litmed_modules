@@ -1,0 +1,602 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <template id="report_report_delivery_document_custom_base" inherit_id="stock.report_delivery_document">
+
+        <!-- Replace the header and address sections -->
+        <xpath expr="//t[@t-set='address']" position="replace">
+            <div class="row">
+                <div class="col-6">
+                    <h3>
+                        <span>Bon de Livraison </span>
+                        <span t-field="o.name"/>
+                    </h3>
+                    <div id="informations" class="row mt-4 mb-4">
+                        <!-- First row - 2 items -->
+                        <div class="col-auto col-3 mw-100 mb-2" t-if="o.state" name="date_order">
+                            <strong>Date de Livraison:</strong>
+                            <t t-if="o.state == 'done'">
+                                <p t-field="o.date_done" class="m-0"/>
+                            </t>
+                            <t t-if="o.state != 'done'">
+                                <p t-field="o.scheduled_date" class="m-0"/>
+                            </t>
+                        </div>
+                        <div t-if="o.origin" class="col-auto col-3 mw-100 mb-2" name="div_origin">
+                            <strong>Commande:</strong>
+                            <p t-field="o.origin" class="m-0"/>
+                        </div>
+                        <div class="col-auto col-3 mw-100 mb-2" t-if="o.partner_id.ref" name="customer_code">
+                            <strong>Code Client:</strong>
+                            <p class="m-0" t-field="o.partner_id.ref"/>
+                        </div>
+                    </div>
+
+                </div>
+                <!-- Address Section -->
+                <div class="col-6"
+                     style="width: 50%; border: 1px dotted #333; display: flex; align-items: center; justify-content: center;border-radius: 15px;padding: 20px;">
+                    <h5 style="border-bottom: 1px dotted #333; width: 100%; ">Client :
+                        <span t-field="o.partner_id.name"/>
+                    </h5>
+                    <div class="custom-address">
+
+                        <div class="address-line " t-if="o.partner_id.street">
+                            <span t-field="o.partner_id.street"/>
+                        </div>
+                        <div class="address-line" t-if="o.partner_id.street2">
+                            <span t-field="o.partner_id.street2"/>
+                        </div>
+                        <div class="address-line" t-if="o.partner_id.zip">
+                            <span t-field="o.partner_id.zip"/>
+                            <span t-field="o.partner_id.city"/>
+                            <span t-if="o.partner_id.state_id">(<span t-field="o.partner_id.state_id"/>),
+                            </span>
+                            <span t-field="o.partner_id.country_id"/>
+                        </div>
+
+                        <div class="contact-info">
+                            <div t-if="o.partner_id.phone">
+                                <b>Tél:</b>
+                                <span t-field="o.partner_id.phone"/>
+                            </div>
+                            <div t-if="o.partner_id.mobile">
+                                <b>Mobile:</b>
+                                <span t-field="o.partner_id.mobile"/>
+                            </div>
+                            <div t-if="o.partner_id.fax">
+                                <b>Fax:</b>
+                                <span t-field="o.partner_id.fax"/>
+                            </div>
+                        </div>
+
+                        <div class="legal-info">
+                            <t t-if="o.company_id.activity_code_in_invoice == True">
+                                <t t-if="o.partner_id.company_type == 'company'">
+                                    <div t-if="o.partner_id.activity_code">
+                                        <strong>Code d'activité :</strong>
+                                        <span t-field="o.partner_id.activity_code"/>
+                                    </div>
+                                </t>
+                                <t t-else="">
+                                    <t t-if="o.partner_id.parent_id">
+                                        <div t-if="o.partner_id.parent_id.activity_code">
+                                            <strong>Code d'activité :</strong>
+                                            <span t-field="o.partner_id.parent_id.activity_code"/>
+                                        </div>
+                                    </t>
+                                </t>
+                            </t>
+
+                            <t t-if="o.company_id.industry_id_in_invoice == True">
+                                <t t-if="o.partner_id.company_type == 'company'">
+                                    <div t-if="o.partner_id.industry_id.name">
+                                        <strong>Secteur d'activité :</strong>
+                                        <span t-field="o.partner_id.industry_id.name"/>
+                                    </div>
+                                </t>
+                                <t t-else="">
+                                    <t t-if="o.partner_id.parent_id">
+                                        <div t-if="o.partner_id.parent_id.industry_id.name">
+                                            <strong>Secteur d'activité :</strong>
+                                            <span t-field="o.partner_id.parent_id.industry_id.name"/>
+                                        </div>
+                                    </t>
+                                </t>
+                            </t>
+
+                            <div>
+                                <span t-if="o.partner_id.rc">
+                                    <b>RC N°:</b>
+                                    <span t-field="o.partner_id.rc"/>
+                                </span>
+                                <span t-if="o.partner_id.ai">
+                                    <b>AI :</b>
+                                    <span t-field="o.partner_id.ai"/>
+                                </span>
+                            </div>
+                            <div>
+                                <span t-if="o.partner_id.nif">
+                                    <b>NIF :</b>
+                                    <span t-field="o.partner_id.nif"/>
+                                </span>
+                                <span t-if="o.partner_id.nis">
+                                    <b>NIS :</b>
+                                    <span t-field="o.partner_id.nis"/>
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </xpath>
+
+        <xpath expr="//t[@t-set='information_block']" position="replace"/>
+
+
+        <!-- Remove the existing document information section inside the page div -->
+        <xpath expr="//div[@class='page']" position="replace">
+            <table class="table table-sm" t-if="o.state!='done'" name="stock_move_table">
+                        <thead>
+                            <tr>
+                                <th name="th_sm_product"><strong>Designation</strong></th>
+                                <th name="th_sm_ordered"><strong>Commandé</strong></th>
+                                <th name="th_sm_quantity"><strong>Livré</strong></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <t t-set="lines" t-value="o.move_ids.filtered(lambda x: x.product_uom_qty)"/>
+                            <tr t-foreach="lines" t-as="move">
+                                <td>
+                                    <span t-field="move.product_id"/>
+                                    <p t-if="move.description_picking != move.product_id.name and move.description_picking != move.product_id.display_name">
+                                        <span t-field="move.description_picking"/>
+                                    </p>
+                                </td>
+                                <td>
+                                    <span t-field="move.product_uom_qty"/>
+                                    <span t-field="move.product_uom"/>
+                                </td>
+                                <td>
+                                    <span t-field="move.quantity_done"/>
+                                    <span t-field="move.product_uom"/>
+                                </td>
+                            </tr>
+                        </tbody>
+
+            </table>
+            <table class="table table-sm mt48" t-if="o.move_line_ids and o.state=='done'" name="stock_move_line_table">
+    <t t-set="has_serial_number" t-value="False"/>
+    <t t-set="has_serial_number" t-value="o.move_line_ids.mapped('lot_id')" groups="stock.group_lot_on_delivery_slip"/>
+    <thead>
+        <tr>
+            <th name="th_line_number" class="text-center col-1">
+                <strong>N°</strong>
+            </th>
+            <th name="th_sml_product" class="col-4">
+                <strong>Product</strong>
+            </th>
+            <t name="lot_serial" t-if="has_serial_number">
+                <th class="text-center col-2">
+                    <strong>Lot/Serial Number</strong>
+                </th>
+            </t>
+            <th name="th_sml_qty_ordered" class="text-center col-1">
+                <strong>Qté</strong>
+            </th>
+            <th name="th_sml_unit_price" class="text-center col-2">
+                <strong>Prix HT</strong>
+            </th>
+            <th name="th_sml_taxes" class="text-center col-1">
+                <strong>TVA</strong>
+            </th>
+            <th name="th_sml_total" class="text-center col-2">
+                <strong>Total HT</strong>
+            </th>
+        </tr>
+    </thead>
+    <tbody>
+        <!-- Enhanced delivery slip with line numbers and additional info -->
+        <t t-set="line_number" t-value="0"/>
+
+        <!-- If has destination packages => create sections of corresponding products -->
+        <t t-if="o.has_packages" name="has_packages">
+            <t t-set="packages" t-value="o.move_line_ids.mapped('result_package_id')"/>
+            <t t-foreach="packages" t-as="package">
+                <t t-call="stock.stock_report_delivery_package_section_line"/>
+                <t t-set="package_move_lines" t-value="o.move_line_ids.filtered(lambda l: l.result_package_id == package)"/>
+
+                <!-- If printing lots/serial numbers => keep products in original lines -->
+                <t t-if="has_serial_number">
+                    <t t-foreach="package_move_lines" t-as="move_line">
+                        <t t-set="line_number" t-value="line_number + 1"/>
+                        <tr>
+                            <td name="line_number" class="text-center">
+                                <span t-esc="line_number"/>
+                            </td>
+                            <td name="product">
+                                <span t-field="move_line.product_id.display_name"/>
+                                <t t-if="move_line.description_picking">
+                                    <br/>
+                                    <span t-field="move_line.description_picking"/>
+                                </t>
+                            </td>
+                            <td name="lot_serial" class="text-center">
+                                <span t-field="move_line.lot_id.name"/>
+                            </td>
+                            <td name="qty_delivered" class="text-center">
+                                <span t-field="move_line.qty_done"/>
+                            </td>
+                            <td name="unit_price" class="text-center">
+                                <span t-field="move_line.move_id.sale_line_id.price_unit" t-options="{'widget': 'monetary', 'display_currency': o.sale_id.currency_id}"/>
+                            </td>
+                            <td name="taxes" class="text-center">
+                                <t t-set="taxes" t-value="', '.join([(tax.description or tax.name) for tax in move_line.move_id.sale_line_id.tax_id]) if move_line.move_id.sale_line_id.tax_id else '0%'"/>
+                                <span t-out="taxes"/>
+                            </td>
+                            <td name="total" class="text-center">
+                                <span t-esc="move_line.qty_done * (move_line.move_id.sale_line_id.price_unit or 0)" t-options="{'widget': 'monetary', 'display_currency': o.sale_id.currency_id}"/>
+                            </td>
+                        </tr>
+                    </t>
+                </t>
+
+                <!-- If not printing lots/serial numbers => use manual aggregation -->
+                <t t-else="">
+                    <!-- Manual aggregation to avoid structure issues -->
+                    <t t-set="processed_products" t-value="set()"/>
+                    <t t-foreach="package_move_lines" t-as="move_line">
+                        <t t-if="move_line.product_id.id not in processed_products">
+                            <t t-set="dummy" t-value="processed_products.add(move_line.product_id.id)"/>
+                            <t t-set="line_number" t-value="line_number + 1"/>
+
+                            <!-- Calculate totals for this product -->
+                            <t t-set="product_lines" t-value="package_move_lines.filtered(lambda l: l.product_id == move_line.product_id)"/>
+                            <t t-set="total_qty" t-value="sum(product_lines.mapped('qty_done'))"/>
+
+                            <tr>
+                                <td name="line_number" class="text-center">
+                                    <span t-esc="line_number"/>
+                                </td>
+                                <td name="product">
+                                    <span t-field="move_line.product_id.display_name"/>
+                                    <t t-if="move_line.description_picking">
+                                        <br/>
+                                        <span t-field="move_line.description_picking"/>
+                                    </t>
+                                </td>
+                                <td name="qty_delivered" class="text-center">
+                                    <span t-esc="total_qty" t-options="{'widget': 'float', 'decimal_precision': 'Product Unit of Measure'}"/>
+                                </td>
+                                <td name="unit_price" class="text-center">
+                                    <span t-field="move_line.move_id.sale_line_id.price_unit" t-options="{'widget': 'monetary', 'display_currency': o.sale_id.currency_id}"/>
+                                </td>
+                                <td name="taxes" class="text-center">
+                                    <t t-set="taxes" t-value="', '.join([(tax.description or tax.name) for tax in move_line.move_id.sale_line_id.tax_id]) if move_line.move_id.sale_line_id.tax_id else '0%'"/>
+                                    <span t-out="taxes"/>
+                                </td>
+                                <td name="total" class="text-center">
+                                    <span t-esc="total_qty * (move_line.move_id.sale_line_id.price_unit or 0)" t-options="{'widget': 'monetary', 'display_currency': o.sale_id.currency_id}"/>
+                                </td>
+                            </tr>
+                        </t>
+                    </t>
+                </t>
+            </t>
+
+            <!-- Make sure we do another section for package-less products if they exist -->
+            <t t-set="move_lines" t-value="o.move_line_ids.filtered(lambda l: not l.result_package_id)"/>
+            <t t-if="move_lines" name="no_package_move_lines">
+                <t t-call="stock.stock_report_delivery_no_package_section_line" name="no_package_section"/>
+
+                <t t-if="has_serial_number">
+                    <t t-foreach="move_lines" t-as="move_line">
+                        <t t-set="line_number" t-value="line_number + 1"/>
+                        <tr>
+                            <td name="line_number" class="text-center">
+                                <span t-esc="line_number"/>
+                            </td>
+                            <td name="product">
+                                <span t-field="move_line.product_id.display_name"/>
+                                <t t-if="move_line.description_picking">
+                                    <br/>
+                                    <span t-field="move_line.description_picking"/>
+                                </t>
+                            </td>
+                            <td name="lot_serial" class="text-center">
+                                <span t-field="move_line.lot_id.name"/>
+                            </td>
+                            <td name="qty_delivered" class="text-center">
+                                <span t-field="move_line.qty_done"/>
+                            </td>
+                            <td name="unit_price" class="text-center">
+                                <span t-field="move_line.move_id.sale_line_id.price_unit" t-options="{'widget': 'monetary', 'display_currency': o.sale_id.currency_id}"/>
+                            </td>
+                            <td name="taxes" class="text-center">
+                                <t t-set="taxes" t-value="', '.join([(tax.description or tax.name) for tax in move_line.move_id.sale_line_id.tax_id]) if move_line.move_id.sale_line_id.tax_id else '0%'"/>
+                                <span t-out="taxes"/>
+                            </td>
+                            <td name="total" class="text-center">
+                                <span t-esc="move_line.qty_done * (move_line.move_id.sale_line_id.price_unit or 0)" t-options="{'widget': 'monetary', 'display_currency': o.sale_id.currency_id}"/>
+                            </td>
+                        </tr>
+                    </t>
+                </t>
+
+                <t t-else="">
+                    <!-- Manual aggregation for no-package lines -->
+                    <t t-set="processed_products" t-value="set()"/>
+                    <t t-foreach="move_lines" t-as="move_line">
+                        <t t-if="move_line.product_id.id not in processed_products">
+                            <t t-set="dummy" t-value="processed_products.add(move_line.product_id.id)"/>
+                            <t t-set="line_number" t-value="line_number + 1"/>
+
+                            <!-- Calculate totals for this product -->
+                            <t t-set="product_lines" t-value="move_lines.filtered(lambda l: l.product_id == move_line.product_id)"/>
+                            <t t-set="total_qty" t-value="sum(product_lines.mapped('qty_done'))"/>
+
+                            <tr>
+                                <td name="line_number" class="text-center">
+                                    <span t-esc="line_number"/>
+                                </td>
+                                <td name="product">
+                                    <span t-field="move_line.product_id.display_name"/>
+                                    <t t-if="move_line.description_picking">
+                                        <br/>
+                                        <span t-field="move_line.description_picking"/>
+                                    </t>
+                                </td>
+                                <td name="qty_delivered" class="text-center">
+                                    <span t-esc="total_qty" t-options="{'widget': 'float', 'decimal_precision': 'Product Unit of Measure'}"/>
+                                </td>
+                                <td name="unit_price" class="text-center">
+                                    <span t-field="move_line.move_id.sale_line_id.price_unit" t-options="{'widget': 'monetary', 'display_currency': o.sale_id.currency_id}"/>
+                                </td>
+                                <td name="taxes" class="text-center">
+                                    <t t-set="taxes" t-value="', '.join([(tax.description or tax.name) for tax in move_line.move_id.sale_line_id.tax_id]) if move_line.move_id.sale_line_id.tax_id else '0%'"/>
+                                    <span t-out="taxes"/>
+                                </td>
+                                <td name="total" class="text-center">
+                                    <span t-esc="total_qty * (move_line.move_id.sale_line_id.price_unit or 0)" t-options="{'widget': 'monetary', 'display_currency': o.sale_id.currency_id}"/>
+                                </td>
+                            </tr>
+                        </t>
+                    </t>
+                </t>
+            </t>
+        </t>
+
+        <!-- No destination packages -->
+        <t t-else="">
+            <!-- If printing lots/serial numbers => keep products in original lines -->
+            <t t-if="has_serial_number">
+                <t t-foreach="o.move_line_ids" t-as="move_line">
+                    <t t-set="line_number" t-value="line_number + 1"/>
+                    <tr>
+                        <td name="line_number" class="text-center">
+                            <span t-esc="line_number"/>
+                        </td>
+                        <td name="product">
+                            <span t-field="move_line.product_id.display_name"/>
+                            <t t-if="move_line.description_picking">
+                                <br/>
+                                <span t-field="move_line.description_picking"/>
+                            </t>
+                        </td>
+                        <td name="lot_serial" class="text-center">
+                            <span t-field="move_line.lot_id.name"/>
+                        </td>
+                        <td name="qty_delivered" class="text-center">
+                            <span t-field="move_line.qty_done"/>
+                        </td>
+                        <td name="unit_price" class="text-center">
+                            <span t-field="move_line.move_id.sale_line_id.price_unit" t-options="{'widget': 'monetary', 'display_currency': o.sale_id.currency_id}"/>
+                        </td>
+                        <td name="taxes" class="text-center">
+                            <t t-set="taxes" t-value="', '.join([(tax.description or tax.name) for tax in move_line.move_id.sale_line_id.tax_id]) if move_line.move_id.sale_line_id.tax_id else '0%'"/>
+                            <span t-out="taxes"/>
+                        </td>
+                        <td name="total" class="text-center">
+                            <span t-esc="move_line.qty_done * (move_line.move_id.sale_line_id.price_unit or 0)" t-options="{'widget': 'monetary', 'display_currency': o.sale_id.currency_id}"/>
+                        </td>
+                    </tr>
+                </t>
+            </t>
+
+            <!-- If not printing lots/serial numbers => manual aggregation -->
+            <t t-else="" name="aggregated_move_lines">
+                <t t-set="processed_products" t-value="set()"/>
+                <t t-foreach="o.move_line_ids" t-as="move_line">
+                    <t t-if="move_line.product_id.id not in processed_products">
+                        <t t-set="dummy" t-value="processed_products.add(move_line.product_id.id)"/>
+                        <t t-set="line_number" t-value="line_number + 1"/>
+
+                        <!-- Calculate totals for this product -->
+                        <t t-set="product_lines" t-value="o.move_line_ids.filtered(lambda l: l.product_id == move_line.product_id)"/>
+                        <t t-set="total_qty" t-value="sum(product_lines.mapped('qty_done'))"/>
+
+                        <tr>
+                            <td name="line_number" class="text-center">
+                                <span t-esc="line_number"/>
+                            </td>
+                            <td name="product">
+                                <span t-field="move_line.product_id.display_name"/>
+                                <t t-if="move_line.description_picking">
+                                    <br/>
+                                    <span t-field="move_line.description_picking"/>
+                                </t>
+                            </td>
+                            <td name="qty_delivered" class="text-center">
+                                <span t-esc="total_qty" t-options="{'widget': 'float', 'decimal_precision': 'Product Unit of Measure'}"/>
+                            </td>
+                            <td name="unit_price" class="text-center">
+                                <span t-field="move_line.move_id.sale_line_id.price_unit" t-options="{'widget': 'monetary', 'display_currency': o.sale_id.currency_id}"/>
+                            </td>
+                            <td name="taxes" class="text-center">
+                                <t t-set="taxes" t-value="', '.join([(tax.description or tax.name) for tax in move_line.move_id.sale_line_id.tax_id]) if move_line.move_id.sale_line_id.tax_id else '0%'"/>
+                                <span t-out="taxes"/>
+                            </td>
+                            <td name="total" class="text-center">
+                                <span t-esc="total_qty * (move_line.move_id.sale_line_id.price_unit or 0)" t-options="{'widget': 'monetary', 'display_currency': o.sale_id.currency_id}"/>
+                            </td>
+                        </tr>
+                    </t>
+                </t>
+            </t>
+        </t>
+    </tbody>
+</table>
+            <!-- Totals Section for Delivery Slip -->
+            <div class="clearfix mb-4" t-if="o.sale_id">
+
+                <div id="total" class="row">
+                    <div t-attf-class="#{'col-6' if report_type != 'html' else 'col-sm-7 col-md-6'} ms-auto">
+                        <table class="table table-sm table-borderless" style="page-break-inside: avoid;">
+
+                            <!-- Calculate delivery totals -->
+                            <t t-set="delivery_subtotal" t-value="0"/>
+                            <t t-set="delivery_tax_amount" t-value="0"/>
+                            <t t-set="delivery_total" t-value="0"/>
+
+                            <!-- Calculate totals from delivered quantities -->
+                            <t t-foreach="o.move_line_ids" t-as="move_line">
+                                <t t-if="move_line.move_id.sale_line_id">
+                                    <t t-set="line_subtotal" t-value="move_line.qty_done * move_line.move_id.sale_line_id.price_unit"/>
+                                    <t t-set="delivery_subtotal" t-value="delivery_subtotal + line_subtotal"/>
+
+                                    <!-- Calculate tax for this line -->
+                                    <t t-set="line_tax" t-value="0"/>
+                                    <t t-foreach="move_line.move_id.sale_line_id.tax_id" t-as="tax">
+                                        <t t-set="line_tax" t-value="line_tax + (line_subtotal * tax.amount / 100)"/>
+                                    </t>
+                                    <t t-set="delivery_tax_amount" t-value="delivery_tax_amount + line_tax"/>
+                                </t>
+                            </t>
+
+                            <t t-set="delivery_total" t-value="delivery_subtotal + delivery_tax_amount"/>
+
+                            <!-- Subtotal row -->
+                            <tr class="border-black o_subtotal">
+                                <td><strong>Subtotal</strong></td>
+                                <td class="text-end">
+                                    <span t-esc="delivery_subtotal" t-options="{'widget': 'monetary', 'display_currency': o.sale_id.currency_id}"/>
+                                </td>
+                            </tr>
+
+                            <!-- Tax rows -->
+                            <t t-if="delivery_tax_amount > 0">
+                                <!-- Group taxes by rate -->
+                                <t t-set="tax_groups" t-value="{}"/>
+                                <t t-foreach="o.move_line_ids" t-as="move_line">
+                                    <t t-if="move_line.move_id.sale_line_id">
+                                        <t t-foreach="move_line.move_id.sale_line_id.tax_id" t-as="tax">
+                                            <t t-set="line_subtotal" t-value="move_line.qty_done * move_line.move_id.sale_line_id.price_unit"/>
+                                            <t t-set="tax_amount" t-value="line_subtotal * tax.amount / 100"/>
+                                            <t t-set="tax_key" t-value="tax.name"/>
+                                            <t t-set="current_tax_amount" t-value="tax_groups.get(tax_key, 0)"/>
+                                            <t t-set="dummy" t-value="tax_groups.update({tax_key: current_tax_amount + tax_amount})"/>
+                                        </t>
+                                    </t>
+                                </t>
+
+                                <!-- Display tax totals -->
+                                <t t-foreach="tax_groups.items()" t-as="tax_item">
+                                    <tr>
+                                        <td><span t-esc="tax_item[0]"/></td>
+                                        <td class="text-end">
+                                            <span t-esc="tax_item[1]" t-options="{'widget': 'monetary', 'display_currency': o.sale_id.currency_id}"/>
+                                        </td>
+                                    </tr>
+                                </t>
+                            </t>
+
+                            <!-- Total row -->
+                            <tr class="border-black fw-bold o_total">
+                                <td><strong>Total</strong></td>
+                                <td class="text-end">
+                                    <span t-esc="delivery_total" t-options="{'widget': 'monetary', 'display_currency': o.sale_id.currency_id}"/>
+                                </td>
+                            </tr>
+
+                            <!-- Payment information if available -->
+                            <t t-if="o.sale_id.invoice_ids">
+                                <t t-set="invoices" t-value="o.sale_id.invoice_ids.filtered(lambda inv: inv.state == 'posted')"/>
+                                <t t-if="invoices">
+                                    <tr class="text-muted">
+                                        <td colspan="2" class="text-center">
+                                            <small>
+                                                Facturé:
+                                                <span t-esc="', '.join(invoices.mapped('name'))"/>
+                                            </small>
+                                        </td>
+                                    </tr>
+
+                                    <!-- Show payment status -->
+                                    <t t-set="total_paid" t-value="sum(invoices.mapped(lambda inv: inv.amount_total - inv.amount_residual))"/>
+                                    <t t-set="total_due" t-value="sum(invoices.mapped('amount_residual'))"/>
+
+                                    <t t-if="total_paid > 0">
+                                        <tr class="text-muted">
+                                            <td><small>Montant payé</small></td>
+                                            <td class="text-end">
+                                                <small>
+                                                    <span t-esc="total_paid" t-options="{'widget': 'monetary', 'display_currency': o.sale_id.currency_id}"/>
+                                                </small>
+                                            </td>
+                                        </tr>
+                                    </t>
+
+                                    <t t-if="total_due > 0">
+                                        <tr class="border-black fw-bold text-danger">
+                                            <td><strong>Montant dû</strong></td>
+                                            <td class="text-end">
+                                                <strong>
+                                                    <span t-esc="total_due" t-options="{'widget': 'monetary', 'display_currency': o.sale_id.currency_id}"/>
+                                                </strong>
+                                            </td>
+                                        </tr>
+                                    </t>
+                                </t>
+                            </t>
+
+                        </table>
+                    </div>
+                </div>
+
+                <div class="mt-4 mb-4" t-if="o.sale_id">
+                    <strong>Arrêtée le présent Bon à la somme de:</strong>
+
+                        <t t-set="delivered_total" t-value="0"/>
+                        <t t-foreach="o.move_line_ids" t-as="move_line">
+                            <t t-if="move_line.move_id.sale_line_id">
+                                <t t-set="line_total" t-value="move_line.qty_done * move_line.move_id.sale_line_id.price_unit"/>
+                                <t t-foreach="move_line.move_id.sale_line_id.tax_id" t-as="tax">
+                                    <t t-set="line_total" t-value="line_total + (line_total * tax.amount / 100)"/>
+                                </t>
+                                <t t-set="delivered_total" t-value="delivered_total + line_total"/>
+                            </t>
+                        </t>
+
+                </div>
+
+                <table style="width: 100%; height: 140px; padding-top:10px; padding-bottom:15px; padding-left:4px; page-break-before: auto;">
+                <tr style="border: 1px solid white;" >
+                    <th style="border: 1px solid black; width:25%; font-size:13px;">
+                        <p style="padding-top:5px; text-align:center;">
+	                        Visa / Signature client: <br/>
+
+	                    </p>
+                    </th>
+                    <th style="width:50%;">
+                    </th>
+                    <th style="border: 1px solid black; width:25%; font-size:13px;">
+                        <p style="text-decoration:underline;padding-top:5px; text-align:center;">
+	                        Visa / Signature :
+	                    </p>
+                    </th>
+                </tr>
+            </table>
+            </div>
+        </xpath>
+    </template>
+</odoo>

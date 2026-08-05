@@ -1,0 +1,10 @@
+*.pyc
+__pycache__/
+*.log
+odoo.log
+filestore/
+sessions/
+auto_backup/
+disable_odoo_online/
+portal_odoo_debranding/
+remove_odoo_enterprise/

@@ -1,0 +1,142 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+
+        <!-- Menu principal -->
+        <menuitem id="menu_sync_main"
+                  name="Synchronisation Inter-Sociétés"
+                  sequence="100"
+                  groups="cpss_sync_inter_company_base.group_sync_user"/>
+
+
+        <!-- États des Factures -->
+        <menuitem id="menu_etats_factures"
+                  name="États des Factures"
+                  parent="menu_sync_main"
+                  sequence="20"
+                  groups="cpss_sync_inter_company_base.group_sync_user"/>
+
+        <menuitem id="menu_etats_factures_clients"
+              name="───  Factures Clients  ───"
+              parent="menu_etats_factures"
+              sequence="10"/>
+
+        <menuitem id="menu_factures_validees_clients_prete"
+                  name="Validées (Prêtes à Proposer)"
+                  parent="menu_etats_factures_clients"
+                  action="action_factures_validees_prete_sync"
+                  sequence="10"
+                  groups="cpss_sync_inter_company_base.group_sync_user"/>
+
+
+        <menuitem id="menu_factures_clients_proposees"
+                  name="Proposées pour Partage"
+                  parent="menu_etats_factures_clients"
+                  action="action_factures_proposees_sync"
+                  sequence="20"
+                  groups="cpss_sync_inter_company_base.group_sync_user"/>
+
+        <menuitem id="menu_factures_clients_synchronisees"
+                  name="Partagées"
+                  parent="menu_etats_factures_clients"
+                  action="action_factures_synchronisees"
+                  sequence="30"
+                  groups="cpss_sync_inter_company_base.group_sync_user"/>
+
+
+
+        <menuitem id="menu_etats_factures_fournisseurs"
+              name="───  Factures Fournisseurs  ───"
+              parent="menu_etats_factures"
+              sequence="20"/>
+
+
+        <menuitem id="menu_factures_four_validee"
+                  name="Validées (Prêtes à Proposer)"
+                  parent="menu_etats_factures_fournisseurs"
+                  action="action_factures_four_validees_prete_sync"
+                  sequence="10"
+                  groups="cpss_sync_inter_company_base.group_sync_user"/>
+
+        <menuitem id="menu_factures_four_proposees"
+                  name="Proposées pour Partage"
+                  parent="menu_etats_factures_fournisseurs"
+                  action="action_factures_four_proposees_sync"
+                  sequence="20"
+                  groups="cpss_sync_inter_company_base.group_sync_user"/>
+
+        <menuitem id="menu_factures_four_synchronisees"
+                  name="Partagées"
+                  parent="menu_etats_factures_fournisseurs"
+                  action="action_factures_four_synchronisees"
+                  sequence="30"
+                  groups="cpss_sync_inter_company_base.group_sync_user"/>
+
+
+
+
+        <!-- Paiements -->
+        <menuitem id="menu_paiements"
+                  name="Paiements"
+                  parent="menu_sync_main"
+                  sequence="25"
+                  groups="cpss_sync_inter_company_base.group_sync_user"/>
+
+        <menuitem id="menu_paiements_non_partages"
+                  name="Non Partagés"
+                  parent="menu_paiements"
+                  action="action_paiements_non_partages"
+                  sequence="10"
+                  groups="cpss_sync_inter_company_base.group_sync_user"/>
+
+        <menuitem id="menu_paiements_partages"
+                  name="Partagés"
+                  parent="menu_paiements"
+                  action="action_paiements_partages"
+                  sequence="20"
+                  groups="cpss_sync_inter_company_base.group_sync_user"/>
+
+        <menuitem id="menu_paiements_erreur"
+                  name="⚠️ Erreurs"
+                  parent="menu_paiements"
+                  action="action_paiements_erreur"
+                  sequence="30"
+                  groups="cpss_sync_inter_company_base.group_sync_user"/>
+
+        <!-- Suivi -->
+        <menuitem id="menu_sync_monitoring"
+                  name="Suivi"
+                  parent="menu_sync_main"
+                  sequence="30"
+                  groups="cpss_sync_inter_company_base.group_sync_user"/>
+
+        <menuitem id="menu_sync_logs"
+                  name="Journaux de Sync"
+                  parent="menu_sync_monitoring"
+                  action="action_sync_logs"
+                  sequence="10"
+                  groups="cpss_sync_inter_company_base.group_sync_user"/>
+
+        <menuitem id="menu_sync_logs_errors"
+                  name="Journaux d'Erreurs"
+                  parent="menu_sync_monitoring"
+                  action="action_sync_logs_errors"
+                  sequence="15"
+                  groups="cpss_sync_inter_company_base.group_sync_user"/>
+
+        <!-- Configuration Technique (sous Paramètres > Technique) -->
+        <menuitem id="menu_sync_technical_root"
+                  name="Synchronisation Inter-Sociétés"
+                  parent="base.menu_administration"
+                  sequence="50"
+                  groups="cpss_sync_inter_company_base.group_sync_admin"/>
+
+        <menuitem id="menu_sync_config"
+                  name="Configuration"
+                  parent="menu_sync_technical_root"
+                  action="action_sync_config_open"
+                  sequence="10"
+                  groups="cpss_sync_inter_company_base.group_sync_admin"/>
+
+    </data>
+</odoo>

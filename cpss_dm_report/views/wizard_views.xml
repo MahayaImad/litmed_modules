@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Vue formulaire du wizard -->
+    <record id="medical_device_report_wizard_form_view" model="ir.ui.view">
+        <field name="name">cpss.dm.report.wizard.form</field>
+        <field name="model">cpss.dm.report.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Rapport Dispositifs Médicaux">
+                <group>
+                    <group string="Période">
+                        <field name="date_from"/>
+                        <field name="date_to"/>
+                    </group>
+                    <group string="Filtre">
+                        <field name="move_type_filter" widget="radio"/>
+                    </group>
+                    <group string="Société">
+                        <field name="company_id" 
+                               groups="base.group_multi_company"/>
+                        <field name="company_id" 
+                               groups="!base.group_multi_company" 
+                               invisible="1"/>
+                    </group>
+                </group>
+                <footer>
+                    <button name="generate_excel_report" 
+                            string="Générer le Rapport Excel" 
+                            type="object" 
+                            class="btn-primary"/>
+                    <button string="Annuler" class="btn-secondary" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <!-- Action pour ouvrir le wizard -->
+    <record id="action_medical_device_report_wizard" model="ir.actions.act_window">
+        <field name="name">Rapport Dispositifs Médicaux</field>
+        <field name="res_model">cpss.dm.report.wizard</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+    </record>
+
+</odoo>

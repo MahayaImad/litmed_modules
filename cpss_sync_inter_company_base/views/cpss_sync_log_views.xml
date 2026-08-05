@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+
+        <!-- Vue liste des logs -->
+        <record id="view_sync_log_tree" model="ir.ui.view">
+            <field name="name">cpss.sync.log.tree</field>
+            <field name="model">cpss.sync.log</field>
+            <field name="arch" type="xml">
+                <tree string="Sync Logs" default_order="create_date desc">
+                    <field name="create_date"/>
+                    <field name="operation_name"/>
+                    <field name="status" decoration-success="status == 'success'" decoration-danger="status == 'error'"/>
+                    <field name="sync_type"/>
+                    <field name="source_document_name"/>
+                    <field name="target_document_name"/>
+                    <field name="societe_operationnelle_id"/>
+                    <field name="societe_cible_id"/>
+                </tree>
+            </field>
+        </record>
+
+        <!-- Vue formulaire des logs -->
+        <record id="view_sync_log_form" model="ir.ui.view">
+            <field name="name">cpss.sync.log.form</field>
+            <field name="model">cpss.sync.log</field>
+            <field name="arch" type="xml">
+                <form string="Sync Log" create="false" edit="false">
+                    <sheet>
+                        <group>
+                            <group>
+                                <field name="operation_name"/>
+                                <field name="status"/>
+                                <field name="sync_type"/>
+                                <field name="create_date"/>
+                            </group>
+                            <group>
+                                <field name="societe_operationnelle_id"/>
+                                <field name="societe_cible_id"/>
+                                <field name="source_document_ref"/>
+                                <field name="target_document_ref"/>
+                            </group>
+                        </group>
+                        <group string="Details" attrs="{'invisible': [('error_message', '=', False)]}">
+                            <field name="error_message"/>
+                            <field name="operation_details"/>
+                        </group>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+        <!-- Actions pour les logs -->
+        <record id="action_sync_logs" model="ir.actions.act_window">
+            <field name="name">Synchronization Logs</field>
+            <field name="res_model">cpss.sync.log</field>
+            <field name="view_mode">tree,form</field>
+            <field name="context">{'search_default_today': 1}</field>
+        </record>
+
+        <record id="action_sync_logs_errors" model="ir.actions.act_window">
+            <field name="name">Error Logs</field>
+            <field name="res_model">cpss.sync.log</field>
+            <field name="view_mode">tree,form</field>
+            <field name="domain">[('status', '=', 'error')]</field>
+        </record>
+
+    </data>
+</odoo>
+

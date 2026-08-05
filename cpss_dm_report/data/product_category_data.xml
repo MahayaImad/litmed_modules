@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+        
+        <!-- Catégorie principale pour les dispositifs médicaux -->
+        <record id="product_category_medical_device" model="product.category">
+            <field name="name">Dispositifs Médicaux</field>
+            <field name="is_medical_device_category">True</field>
+        </record>
+
+        <!-- Sous-catégories exemples -->
+        <record id="product_category_medical_device_consumable" model="product.category">
+            <field name="name">Consommables Médicaux</field>
+            <field name="parent_id" ref="product_category_medical_device"/>
+            <field name="is_medical_device_category">True</field>
+        </record>
+
+        <record id="product_category_medical_device_equipment" model="product.category">
+            <field name="name">Équipements Médicaux</field>
+            <field name="parent_id" ref="product_category_medical_device"/>
+            <field name="is_medical_device_category">True</field>
+        </record>
+
+        <record id="product_category_medical_device_diagnostic" model="product.category">
+            <field name="name">Dispositifs de Diagnostic</field>
+            <field name="parent_id" ref="product_category_medical_device"/>
+            <field name="is_medical_device_category">True</field>
+        </record>
+
+    </data>
+</odoo>

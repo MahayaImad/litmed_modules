@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+
+    <template id="external_layout_standard_inherit" inherit_id="web.external_layout_standard">
+        <xpath expr="//div[@t-attf-class='header o_company_#{company.id}_layout']/div[2]" position="replace">
+            <div class="col-3 text-center">
+                    <!-- Gérer les deux contextes : res.company et base.document.layout -->
+                    <img t-if="env.company.second_logo"
+                         t-att-src="image_data_uri(env.company.second_logo if env.company.second_logo else company.company_id.second_logo)"
+                         alt="Deuxième Logo" style="max-height: 120px;"/>
+                </div>
+            <div class="col-6 text-end" style="margin-top:22px;" t-field="company.report_header" name="moto"/>
+        </xpath>
+    </template>
+</odoo>

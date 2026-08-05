@@ -1,0 +1,255 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- 1. The New Report Action (Adds 'BL TTC' to the Print menu) -->
+    <record id="action_report_invoice_bl_ttc" model="ir.actions.report">
+        <field name="name">BL TTC</field>
+        <field name="model">account.move</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">cpss_invoices_reshaping.report_invoice_bl_ttc</field>
+        <field name="report_file">cpss_invoices_reshaping.report_invoice_bl_ttc</field>
+        <field name="print_report_name">(object._get_report_base_filename() + ' - BL TTC')</field>
+        <field name="binding_model_id" ref="account.model_account_move"/>
+        <field name="binding_type">report</field>
+        <field name="groups_id" eval="[(4, ref('stock_account.group_lot_on_invoice'))]"/>
+    </record>
+
+    <!-- 2. The Loop Template -->
+    <template id="report_invoice_bl_ttc">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="o">
+                <t t-set="lang" t-value="o.partner_id.lang"/>
+                <t t-call="cpss_invoices_reshaping.report_invoice_document_bl_ttc" t-lang="lang"/>
+            </t>
+        </t>
+    </template>
+
+
+    <!-- 3. The Custom Document Layout (Inherits base invoice but uses primary="True") -->
+    <template id="report_invoice_document_bl_ttc" inherit_id="account.report_invoice_document" primary="True">
+
+        <!-- SAFELY HIDE LOTS TABLE & AMOUNT IN LETTERS USING CSS -->
+        <xpath expr="//div[hasclass('page')]" position="before">
+            <t groups="stock_account.group_lot_on_invoice">
+                <t t-set="all_lots" t-value="o._get_invoiced_lot_values_with_expiry()"/>
+            </t>
+            <style>
+                table[name="invoice_snln_table"],
+                [name="amount_in_words"],
+                #amount_in_words,
+                .amount_in_words {
+                    display: none !important;
+                }
+            </style>
+        </xpath>
+
+        <!-- ============================================================== -->
+        <!-- HEADER OVERRIDES (Targeting your custom enhanced layout)       -->
+        <!-- ============================================================== -->
+
+        <!-- Replace your custom <h3> Title with Bon de livraison -->
+        <xpath expr="//div[@class='row'][1]//h3" position="replace">
+            <h3>
+                <span>Bon de livraison </span>
+                <span t-if="o.name != '/'" t-field="o.name"/>
+            </h3>
+        </xpath>
+
+        <!-- Replace your Date facture with Date BL -->
+        <xpath expr="//div[@name='invoice_date']" position="replace">
+            <div class="col-auto col-3 mw-100 mb-2" t-if="o.invoice_date" name="invoice_date">
+                <strong>Date BL:</strong>
+                <p class="m-0" t-field="o.invoice_date"/>
+            </div>
+        </xpath>
+
+        <!-- Remove Mode de paiement block completely -->
+        <xpath expr="//div[@name='payment_mode']" position="replace"/>
+
+        <!-- Simplify the Totals table to ONLY show final TOTAL TTC -->
+        <xpath expr="//div[@id='total']//table" position="replace">
+            <table class="table table-sm" style="page-break-inside: avoid;">
+                <tr class="border-black o_total">
+                    <td><strong>TOTAL</strong></td>
+                    <td class="text-end">
+                        <span class="text-nowrap" t-esc="o.amount_total" t-options='{"widget": "monetary", "display_currency": o.currency_id}'/>
+                    </td>
+                </tr>
+            </table>
+        </xpath>
+
+
+        <!-- ============================================================== -->
+        <!-- LOTS & TABLE MODIFICATIONS                                     -->
+        <!-- ============================================================== -->
+
+        <!-- Lot header -->
+        <xpath expr="//th[@name='th_description']" position="after">
+            <th name="th_lot" class="text-center" style="width: 10%;"><span>Lot</span></th>
+            <th name="th_ddp" class="text-center" style="width: 8%;"><span>DDP</span></th>
+        </xpath>
+
+        <!-- Rename Unit Price Header -->
+        <xpath expr="//th[@name='th_priceunit']" position="replace">
+            <th name="th_priceunit" class="text-center"><span>PRIX Unit</span></th>
+        </xpath>
+
+        <!-- Completely Remove Taxes Header -->
+        <xpath expr="//th[@name='th_taxes']" position="replace"/>
+
+        <!-- Rename Subtotal Header to TOTAL -->
+        <xpath expr="//th[@name='th_subtotal']" position="replace">
+            <th name="th_subtotal" class="text-center col-2"><span>TOTAL</span></th>
+        </xpath>
+
+        <!-- ORIGINAL ROW: Inject an empty Lot Cell -->
+        <xpath expr="//tbody[hasclass('invoice_tbody')]//tr[t[@name='account_invoice_line_accountable']]//td[@name='account_invoice_line_name']" position="after">
+            <td name="td_empty_lot" class="text-center">-</td>
+            <td name="td_empty_ddp" class="text-center">-</td>
+        </xpath>
+
+        <!-- ORIGINAL ROW: Replace Unit Price with TTC Unit Price -->
+        <xpath expr="//tbody[hasclass('invoice_tbody')]//tr[t[@name='account_invoice_line_accountable']]//td[span[@t-field='line.price_unit']]" position="replace">
+            <td t-attf-class="text-center {{ 'd-none d-md-table-cell' if report_type == 'html' else '' }}">
+                <span class="text-nowrap" t-esc="(line.price_total / line.quantity) if line.quantity else 0" t-options='{"widget": "monetary", "display_currency": o.currency_id}'/>
+            </td>
+        </xpath>
+
+        <!-- ORIGINAL ROW: Remove Tax Cell completely -->
+        <xpath expr="//tbody[hasclass('invoice_tbody')]//tr[t[@name='account_invoice_line_accountable']]//td[span[@id='line_tax_ids']]" position="replace"/>
+
+        <!-- ORIGINAL ROW: Force Total to be TTC -->
+        <xpath expr="//tbody[hasclass('invoice_tbody')]//tr[t[@name='account_invoice_line_accountable']]//td[hasclass('o_price_total')]" position="replace">
+            <td class="text-end o_price_total">
+                <span class="text-nowrap" t-esc="line.price_total" t-options='{"widget": "monetary", "display_currency": o.currency_id}'/>
+            </td>
+        </xpath>
+
+        <!-- INITIALIZE THE COUNTER TRICK BEFORE THE TABLE BODY -->
+        <xpath expr="//tbody[hasclass('invoice_tbody')]" position="before">
+            <t t-set="lot_line_counter" t-value="[1]"/>
+        </xpath>
+
+        <!-- ADD THE LINE NUMBER CELL TO THE ORIGINAL ODOO ROW -->
+        <xpath expr="//tbody[hasclass('invoice_tbody')]//tr[t[@name='account_invoice_line_accountable']]//td[1]" position="replace">
+            <td name="td_line_number" class="text-center line-number">
+                <span t-esc="lot_line_counter[0]"/>
+                <t t-set="dummy" t-value="lot_line_counter.append(lot_line_counter.pop() + 1)"/>
+            </td>
+        </xpath>
+
+        <!-- PREPARE LOTS: Right before the row renders -->
+        <xpath expr="//tbody[hasclass('invoice_tbody')]//tr[t[@name='account_invoice_line_accountable']]" position="before">
+            <t groups="stock_account.group_lot_on_invoice">
+                <t t-set="line_lots" t-value="[lot for lot in (all_lots or []) if line.product_id and lot.get('product_name') in (line.product_id.name, line.product_id.display_name)] if line.display_type == 'product' else[]"/>
+            </t>
+        </xpath>
+
+        <!-- HIDE THE ORIGINAL ODOO ROW: If we found lots -->
+        <xpath expr="//tbody[hasclass('invoice_tbody')]//tr[t[@name='account_invoice_line_accountable']]" position="attributes">
+            <attribute name="t-if">not line_lots</attribute>
+        </xpath>
+
+        <!-- INJECT OUR NEW ROWS: Loop through the lots and generate a row for each -->
+        <xpath expr="//tbody[hasclass('invoice_tbody')]//tr[t[@name='account_invoice_line_accountable']]" position="after">
+            <t t-if="line_lots" groups="stock_account.group_lot_on_invoice">
+
+                <t t-set="lots_qty_sum" t-value="sum(float(lot.get('quantity', 0)) for lot in line_lots)"/>
+                <t t-set="line_qty" t-value="line.quantity or 1.0"/>
+
+                <!-- Print one full row for each lot -->
+                <t t-foreach="line_lots" t-as="lot">
+                    <t t-set="lot_qty" t-value="float(lot.get('quantity', 0))"/>
+                    <t t-set="ratio" t-value="lot_qty / line_qty if line_qty else 0"/>
+
+                    <tr>
+                        <!-- 0. THE NEW LINE NUMBER CELL -->
+                        <td name="td_line_number" class="text-center line-number">
+                            <span t-esc="lot_line_counter[0]"/>
+                            <t t-set="dummy" t-value="lot_line_counter.append(lot_line_counter.pop() + 1)"/>
+                        </td>
+
+                        <!-- 1. Description -->
+                        <td name="account_invoice_line_name">
+                            <span t-field="line.name" t-options="{'widget': 'text'}"/>
+                        </td>
+
+                         <td name="account_invoice_line_lot" class="text-center">
+                            <span t-esc="lot.get('lot_name')"/>
+                        </td>
+
+                        <td name="account_invoice_line_ddp" class="text-center">
+                            <span t-esc="lot.get('expiration_date_display')"/>
+                        </td>
+
+                        <!-- 2. Quantity (Lot Qty) -->
+                        <td class="text-center">
+                            <span t-esc="lot_qty" t-options='{"widget": "float", "precision": 0}'/>
+                            <span t-esc="lot.get('uom_name')" groups="uom.group_uom"/>
+                        </td>
+
+                        <!-- 3. Unit Price (Calculated TTC) -->
+                        <td t-attf-class="text-center {{ 'd-none d-md-table-cell' if report_type == 'html' else '' }}">
+                            <span class="text-nowrap" t-esc="(line.price_total / line.quantity) if line.quantity else 0" t-options='{"widget": "monetary", "display_currency": o.currency_id}'/>
+                        </td>
+
+                        <!-- 4. Discount -->
+                        <td t-if="display_discount" t-attf-class="text-center {{ 'd-none d-md-table-cell' if report_type == 'html' else '' }}">
+                            <span class="text-nowrap" t-field="line.discount"/>
+                        </td>
+
+                        <!-- 6. Amount (Mathematically split TTC) -->
+                        <td class="text-end o_price_total">
+                            <t t-set="lot_total" t-value="line.price_total * ratio"/>
+                            <span class="text-nowrap" t-esc="lot_total" t-options='{"widget": "monetary", "display_currency": o.currency_id}'/>
+                        </td>
+                    </tr>
+                </t>
+
+                <!-- Safety Check Remainder Row: For any units billed but lacking a tracked lot -->
+                <t t-set="remainder_qty" t-value="line.quantity - lots_qty_sum"/>
+                <t t-if="remainder_qty &gt; 0.01">
+                    <t t-set="ratio" t-value="remainder_qty / line_qty if line_qty else 0"/>
+                    <tr>
+                        <td name="td_line_number" class="text-center line-number" style="width: 3%;">
+                            <span t-esc="lot_line_counter[0]"/>
+                            <t t-set="dummy" t-value="lot_line_counter.append(lot_line_counter.pop() + 1)"/>
+                        </td>
+                        <td name="account_invoice_line_name">
+                            <span t-field="line.name" t-options="{'widget': 'text'}"/>
+                        </td>
+                        <td name="account_invoice_line_lot" class="text-center"></td>
+                        <td class="text-center">
+                            <span t-esc="remainder_qty" t-options='{"widget": "float", "precision": 2}'/>
+                            <span t-field="line.product_uom_id" groups="uom.group_uom"/>
+                        </td>
+
+                        <!-- Unit Price TTC -->
+                        <td t-attf-class="text-center {{ 'd-none d-md-table-cell' if report_type == 'html' else '' }}">
+                            <span class="text-nowrap" t-esc="(line.price_total / line.quantity) if line.quantity else 0" t-options='{"widget": "monetary", "display_currency": o.currency_id}'/>
+                        </td>
+
+                        <td t-if="display_discount" t-attf-class="text-center {{ 'd-none d-md-table-cell' if report_type == 'html' else '' }}">
+                            <span class="text-nowrap" t-field="line.discount"/>
+                        </td>
+
+                        <!-- Total TTC -->
+                        <td class="text-end o_price_total">
+                            <t t-set="rem_total" t-value="line.price_total * ratio"/>
+                            <span class="text-nowrap" t-esc="rem_total" t-options='{"widget": "monetary", "display_currency": o.currency_id}'/>
+                        </td>
+                    </tr>
+                </t>
+
+            </t>
+        </xpath>
+        <xpath expr="//p[@name='montant']//strong[@t-if=&quot;o.state not in ['draft','sent']&quot;]" position="replace">
+<!--            <strong>Arrêté le présent BL à la somme de :</strong>-->
+        </xpath>
+
+        <xpath expr="//p[@name='montant']//strong[@t-if=&quot;o.state in ['draft','sent']&quot;]" position="replace">
+<!--            <strong>Arrêté le présent BL à la somme de :</strong>-->
+        </xpath>
+
+    </template>
+</odoo>

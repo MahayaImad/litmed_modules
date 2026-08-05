@@ -1,0 +1,184 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+
+        <!-- Vue formulaire avec workflow français -->
+        <record id="view_move_form_sync_fr" model="ir.ui.view">
+            <field name="name">account.move.form.sync.french</field>
+            <field name="model">account.move</field>
+            <field name="inherit_id" ref="account.view_move_form"/>
+            <field name="arch" type="xml">
+
+                <!-- Boutons du workflow -->
+                <xpath expr="//header" position="inside">
+                    <field name="is_operational_company" attrs="{'invisible': True}" />
+
+                    <!-- Bouton Proposer pour Sync -->
+                    <button name="action_proposer_sync"
+                        type="object"
+                        string="Proposer pour Partage"
+                        class="btn-secondary"
+                        attrs="{'invisible': ['|', '|', '|', ('state', '!=', 'posted'), ('partage', 'in', ['proposed', 'shared']), ('facture_societe_cible_id', '!=', False), ('is_operational_company', '!=', True)]}"
+                        groups="cpss_sync_inter_company_base.group_sync_user"/>
+
+                    <!-- Bouton Synchroniser -->
+                    <button name="action_synchroniser"
+                        type="object"
+                        string="Partager"
+                        class="btn-primary"
+                        attrs="{'invisible': ['|',('partage', '!=', 'proposed'), ('is_operational_company', '!=', True)]}"
+                        groups="cpss_sync_inter_company_base.group_sync_admin"/>
+
+                    <button name="action_refuser_partage"
+                        type="object"
+                        string="Refuser le Partage"
+                        class="btn-danger"
+                        attrs="{'invisible': ['|',('partage', '!=', 'proposed'), ('is_operational_company', '!=', True)]}"
+                        groups="cpss_sync_inter_company_base.group_sync_admin"/>
+
+                </xpath>
+
+                <!-- Champs de synchronisation -->
+                <xpath expr="//field[@name='ref']" position="after">
+
+                    <!-- Liens inter-sociétés -->
+                    <field name="facture_societe_cible_id"
+                           attrs="{'invisible': ['|', ('facture_societe_cible_id', '=', False), ('is_operational_company', '!=', True)]}"
+                           readonly="1"/>
+                    <field name="facture_origine_operationnelle_id"
+                           attrs="{'invisible': ['|', ('facture_origine_operationnelle_id', '=', False), ('is_operational_company', '=', True)]}"
+                           readonly="1"/>
+                    <field name="active_company_ids" widget="many2many_tags"/>
+                    <field name="partage"
+                           attrs="{'invisible': [('is_operational_company', '!=', True)]}"
+                           readonly="1"
+                           widget="badge"
+                           decoration-info="partage == 'not_shared'"
+                           decoration-warning="partage == 'proposed'"
+                           decoration-success="partage == 'shared'"
+                           decoration-danger="partage == 'refused'"/>
+
+                </xpath>
+
+            </field>
+        </record>
+
+        <!-- Vue liste avec champ partage
+        <record id="view_move_tree_sync" model="ir.ui.view">
+            <field name="name">account.move.tree.sync</field>
+            <field name="model">account.move</field>
+            <field name="inherit_id" ref="account.view_invoice_tree"/>
+            <field name="arch" type="xml">
+
+                <xpath expr="//field[@name='state']" position="after">
+                    <field name="is_operational_company"
+                           attrs="{'column_invisible': True}" />
+                    <field name="partage"
+                           attrs="{'column_invisible': [('is_operational_company', '!=', True)]}"
+                           optional="show"
+                           widget="badge"
+                           decoration-info="partage == 'not_shared'"
+                           decoration-warning="partage == 'proposed'"
+                           decoration-success="partage == 'shared'"
+                           decoration-danger="partage == 'refused'"/>
+                </xpath>
+
+            </field>
+        </record> -->
+
+
+        <record id="view_account_move_filter_sync" model="ir.ui.view">
+            <field name="name">account.move.search.sync</field>
+            <field name="model">account.move</field>
+            <field name="inherit_id" ref="account.view_account_invoice_filter"/>
+            <field name="arch" type="xml">
+
+                <xpath expr="//search" position="inside">
+
+                    <separator/>
+
+                    <filter name="filter_not_shared"
+                            string="Non partagé"
+                            domain="[('partage', '=', 'not_shared')]"/>
+
+                    <filter name="filter_proposed"
+                            string="Proposé"
+                            domain="[('partage', '=', 'proposed')]"/>
+
+                    <filter name="filter_shared"
+                            string="Partagé"
+                            domain="[('partage', '=', 'shared')]"/>
+
+                    <filter name="filter_refused"
+                            string="Refusé"
+                            domain="[('partage', '=', 'refused')]"/>
+
+                </xpath>
+
+            </field>
+        </record>
+
+        <!-- Actions pour les différents états -->
+        <record id="action_factures_validees_prete_sync" model="ir.actions.act_window">
+            <field name="name">Factures Clients Validées (Prêtes à Proposer)</field>
+            <field name="res_model">account.move</field>
+            <field name="view_mode">tree,form</field>
+            <field name="domain">[('state', '=', 'posted'), ('partage', '=', 'not_shared'), ('move_type', 'in', ['out_invoice', 'out_refund'])]</field>
+            <field name="context">{
+                'default_move_type': 'out_invoice',
+            }</field>
+        </record>
+
+        <record id="action_factures_four_validees_prete_sync" model="ir.actions.act_window">
+            <field name="name">Factures Fournisseurs Validées (Prêtes à Proposer)</field>
+            <field name="res_model">account.move</field>
+            <field name="view_mode">tree,form</field>
+            <field name="domain">[('state', '=', 'posted'), ('partage', '=', 'not_shared'), ('move_type', 'in', ['in_invoice', 'in_refund'])]</field>
+            <field name="context">{
+                'default_move_type': 'in_invoice',
+            }</field>
+        </record>
+
+        <record id="action_factures_proposees_sync" model="ir.actions.act_window">
+            <field name="name">Factures Clients Proposées pour Partage</field>
+            <field name="res_model">account.move</field>
+            <field name="view_mode">tree,form</field>
+            <field name="domain">[('partage', '=', 'proposed'), ('move_type', 'in', ['out_invoice', 'out_refund'])]</field>
+            <field name="context">{
+                'default_move_type': 'out_invoice',
+            }</field>
+        </record>
+
+        <record id="action_factures_four_proposees_sync" model="ir.actions.act_window">
+            <field name="name">Factures Fournisseurs Proposées pour Partage</field>
+            <field name="res_model">account.move</field>
+            <field name="view_mode">tree,form</field>
+            <field name="domain">[('partage', '=', 'proposed'), ('move_type', 'in', ['in_invoice', 'in_refund'])]</field>
+            <field name="context">{
+                'default_move_type': 'in_invoice',
+            }</field>
+        </record>
+
+        <record id="action_factures_synchronisees" model="ir.actions.act_window">
+            <field name="name">Factures Clients Partagées</field>
+            <field name="res_model">account.move</field>
+            <field name="view_mode">tree,form</field>
+            <field name="domain">[('partage', '=', 'shared'), ('move_type', 'in', ['out_invoice', 'out_refund'])]</field>
+            <field name="context">{
+                'default_move_type': 'out_invoice',
+            }</field>
+        </record>
+
+        <record id="action_factures_four_synchronisees" model="ir.actions.act_window">
+            <field name="name">Factures Fournisseurs Partagées</field>
+            <field name="res_model">account.move</field>
+            <field name="view_mode">tree,form</field>
+            <field name="domain">[('partage', '=', 'shared'), ('move_type', 'in', ['in_invoice', 'in_refund'])]</field>
+            <field name="context">{
+                'default_move_type': 'in_invoice',
+            }</field>
+        </record>
+
+
+    </data>
+</odoo>

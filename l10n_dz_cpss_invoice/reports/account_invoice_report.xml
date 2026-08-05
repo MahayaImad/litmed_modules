@@ -1,0 +1,290 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <template id="report_invoice_document_enhanced" inherit_id="account.report_invoice_document">
+
+        <!-- Replace the table with enhanced version -->
+        <xpath expr="//table[@name='invoice_line_table']" position="replace">
+            <table name="invoice_line_table" style="width: 100%;">
+                <thead>
+                    <tr>
+                        <th name="th_line_number" class="text-center line-number col-1">
+                            <span>N°</span>
+                        </th>
+                        <th name="th_description" class="text-center col-5">
+                            <span>Description</span>
+                        </th>
+                        <th name="th_quantity" class="text-center col-1">
+                            <span>Qté</span>
+                        </th>
+                        <th name="th_priceunit"
+                            t-attf-class="col-2 text-center {{ 'd-none d-md-table-cell' if report_type == 'html' else '' }}">
+                            <span>Prix HT</span>
+                        </th>
+                        <th name="th_price_unit" t-if="display_discount"
+                            t-attf-class="text-end {{ 'd-none d-md-table-cell' if report_type == 'html' else '' }}">
+                            <span>Rem.%</span>
+                        </th>
+                        <th name="th_taxes"
+                            t-attf-class="text-center col-1 {{ 'd-none d-md-table-cell' if report_type == 'html' else '' }}">
+                            <span>TVA</span>
+                        </th>
+                        <th name="th_subtotal" class="text-center col-2">
+                            <span groups="account.group_show_line_subtotals_tax_excluded">Total HT</span>
+                            <span groups="account.group_show_line_subtotals_tax_included">Total TTC</span>
+                        </th>
+                    </tr>
+                </thead>
+                <tbody class="invoice_tbody">
+                    <t t-set="current_subtotal" t-value="0"/>
+                    <t t-set="lines"
+                       t-value="o.invoice_line_ids.sorted(key=lambda l: (-l.sequence, l.date, l.move_name, -l.id), reverse=True)"/>
+                    <t t-set="line_number" t-value="0"/>
+
+                    <t t-foreach="lines" t-as="line">
+                        <t t-set="current_subtotal" t-value="current_subtotal + line.price_subtotal"
+                           groups="account.group_show_line_subtotals_tax_excluded"/>
+                        <t t-set="current_subtotal" t-value="current_subtotal + line.price_total"
+                           groups="account.group_show_line_subtotals_tax_included"/>
+
+                        <tr t-att-class="'bg-200 fw-bold o_line_section' if line.display_type == 'line_section' else 'fst-italic o_line_note' if line.display_type == 'line_note' else ''">
+                            <t t-if="line.display_type == 'product'" name="account_invoice_line_accountable">
+                                <t t-set="line_number" t-value="line_number + 1"/>
+                                <td name="line_number" class="text-center line-number">
+                                    <span t-esc="line_number"/>
+                                </td>
+                                <td name="account_invoice_line_name">
+                                    <span t-field="line.name" t-options="{'widget': 'text'}"/>
+                                </td>
+                                <td class="text-center">
+                                    <span t-field="line.quantity"/>
+                                    <span t-esc="line.product_uom_id.name"/>
+                                </td>
+                                <td t-attf-class="text-center {{ 'd-none d-md-table-cell' if report_type == 'html' else '' }}">
+                                    <span class="text-nowrap" t-field="line.price_unit"/>
+                                </td>
+                                <td t-if="display_discount"
+                                    t-attf-class="text-center {{ 'd-none d-md-table-cell' if report_type == 'html' else '' }}">
+                                    <span class="text-nowrap" t-field="line.discount"/>
+                                </td>
+                                <t t-set="taxes"
+                                   t-value="', '.join([(tax.description or tax.name) for tax in line.tax_ids]) if line.tax_ids else '0%'"/>
+                                <td name="td_taxes"
+                                    t-attf-class="text-center {{ 'd-none d-md-table-cell' if report_type == 'html' else '' }} {{ 'text-nowrap' if len(taxes) &lt; 10 else '' }}">
+                                    <span t-out="taxes" id="line_tax_ids"/>
+                                </td>
+                                <td class="text-end o_price_total">
+                                    <span class="text-nowrap" t-field="line.price_subtotal"
+                                          groups="account.group_show_line_subtotals_tax_excluded"/>
+                                    <span class="text-nowrap" t-field="line.price_total"
+                                          groups="account.group_show_line_subtotals_tax_included"/>
+                                </td>
+                            </t>
+                            <t t-if="line.display_type == 'line_section'">
+                                <td colspan="99">
+                                    <span t-field="line.name" t-options="{'widget': 'text'}"/>
+                                </td>
+                                <t t-set="current_section" t-value="line"/>
+                                <t t-set="current_subtotal" t-value="0"/>
+                            </t>
+                            <t t-if="line.display_type == 'line_note'">
+                                <td colspan="99">
+                                    <span t-field="line.name" t-options="{'widget': 'text'}"/>
+                                </td>
+                            </t>
+                        </tr>
+
+                        <t t-if="current_section and (line_last or lines[line_index+1].display_type == 'line_section')">
+                            <tr class="is-subtotal text-end">
+                                <td colspan="99">
+                                    <strong class="mr16">Subtotal</strong>
+                                    <span t-esc="current_subtotal"
+                                          t-options="{&quot;widget&quot;: &quot;monetary&quot;, &quot;display_currency&quot;: o.currency_id}"/>
+                                </td>
+                            </tr>
+                        </t>
+                    </t>
+                </tbody>
+            </table>
+        </xpath>
+
+        <!-- Replace the header and address sections -->
+        <xpath expr="//div[@class='row'][1]" position="replace">
+            <div class="row">
+                <div class="col-6">
+                    <h3>
+                        <span t-if="o.move_type == 'out_invoice' and o.state == 'posted'">Facture de vente</span>
+                        <span t-if="o.move_type == 'out_invoice' and o.state == 'draft'">Facture Brouillon</span>
+                        <span t-if="o.move_type == 'out_invoice' and o.state == 'cancel'">Facture annulée</span>
+                        <span t-if="o.move_type == 'out_refund'">Avoir client</span>
+                        <span t-if="o.move_type == 'in_refund'">Avoir fournisseur</span>
+                        <span t-if="o.move_type == 'in_invoice'">Facture d'achat</span>
+                        <span t-if="o.name != '/'" t-field="o.name"/>
+                    </h3>
+                    <div id="informations" class="row mt-4 mb-14">
+                        <!-- First row - 2 items -->
+                        <div class="col-auto col-3 mw-100 mb-2" t-if="o.invoice_date" name="invoice_date">
+                            <t t-if="o.move_type == 'out_invoice'">
+                                <strong>Date facture:</strong>
+                            </t>
+                            <t t-elif="o.move_type == 'out_refund'">
+                                <strong>Date:</strong>
+                            </t>
+                            <t t-elif="o.move_type == 'out_receipt'">
+                                <strong>Date:</strong>
+                            </t>
+                            <t t-else="">
+                                <strong>Date:</strong>
+                            </t>
+                            <p class="m-0" t-field="o.invoice_date"/>
+                        </div>
+                        <div class="col-auto col-3 mw-100 mb-2" t-if="o.partner_id.ref" name="customer_code">
+                            <strong>Code Client:</strong>
+                            <p class="m-0" t-field="o.partner_id.ref"/>
+                        </div>
+                    </div>
+                    <div id="informations" class="row mt-4 mb-4">
+                        <!-- Second row - 2 items -->
+                        <div class="col-auto col-3 mw-100 mb-2" t-if="o.payment_mode" name="payment_mode">
+                            <strong>Mode de paiement:</strong>
+                            <p class="m-0" t-field="o.payment_mode.name"/>
+                        </div>
+                        <div class="col-auto col-3 mw-100 mb-2" t-if="o.invoice_origin" name="invoice_origin">
+                            <strong>Doc d'origine:</strong>
+                            <p class="m-0" t-field="o.invoice_origin"/>
+                        </div>
+                    </div>
+
+
+                </div>
+                <!-- Address Section -->
+                <div class="col-6"
+                     style="width: 50%; border: 1px dotted #333; display: flex; align-items: center; justify-content: center;border-radius: 15px;padding: 20px;">
+                    <h5 style="border-bottom: 1px dotted #333; width: 100%; ">Client :
+                        <span t-field="o.partner_id.name"/>
+                    </h5>
+                    <div class="custom-address">
+
+                        <div class="address-line " t-if="o.partner_id.street">
+                            <span t-field="o.partner_id.street"/>
+                        </div>
+                        <div class="address-line" t-if="o.partner_id.street2">
+                            <span t-field="o.partner_id.street2"/>
+                        </div>
+                        <div class="address-line" t-if="o.partner_id.zip">
+                            <span t-field="o.partner_id.zip"/>
+                            <span t-field="o.partner_id.city"/>
+                            <span t-if="o.partner_id.state_id">(<span t-field="o.partner_id.state_id"/>),
+                            </span>
+                            <span t-field="o.partner_id.country_id"/>
+                        </div>
+
+                        <div class="contact-info">
+                            <div t-if="o.partner_id.phone">
+                                <b>Tél:</b>
+                                <span t-field="o.partner_id.phone"/>
+                            </div>
+                            <div t-if="o.partner_id.mobile">
+                                <b>Mobile:</b>
+                                <span t-field="o.partner_id.mobile"/>
+                            </div>
+                            <div t-if="o.partner_id.fax">
+                                <b>Fax:</b>
+                                <span t-field="o.partner_id.fax"/>
+                            </div>
+                        </div>
+
+                        <div class="legal-info">
+                            <t t-if="o.company_id.activity_code_in_invoice == True">
+                                <t t-if="o.partner_id.company_type == 'company'">
+                                    <div t-if="o.partner_id.activity_code">
+                                        <strong>Code d'activité :</strong>
+                                        <span t-field="o.partner_id.activity_code"/>
+                                    </div>
+                                </t>
+                                <t t-else="">
+                                    <t t-if="o.partner_id.parent_id">
+                                        <div t-if="o.partner_id.parent_id.activity_code">
+                                            <strong>Code d'activité :</strong>
+                                            <span t-field="o.partner_id.parent_id.activity_code"/>
+                                        </div>
+                                    </t>
+                                </t>
+                            </t>
+
+                            <t t-if="o.company_id.industry_id_in_invoice == True">
+                                <t t-if="o.partner_id.company_type == 'company'">
+                                    <div t-if="o.partner_id.industry_id.name">
+                                        <strong>Secteur d'activité :</strong>
+                                        <span t-field="o.partner_id.industry_id.name"/>
+                                    </div>
+                                </t>
+                                <t t-else="">
+                                    <t t-if="o.partner_id.parent_id">
+                                        <div t-if="o.partner_id.parent_id.industry_id.name">
+                                            <strong>Secteur d'activité :</strong>
+                                            <span t-field="o.partner_id.parent_id.industry_id.name"/>
+                                        </div>
+                                    </t>
+                                </t>
+                            </t>
+
+                            <div>
+                                <div t-if="o.partner_id.rc" class="mr-6">
+                                    <strong>RC N°:</strong>
+                                    <span t-field="o.partner_id.rc"/>
+                                </div>
+                                <div t-if="o.partner_id.ai">
+                                    <strong>AI :</strong>
+                                    <span t-field="o.partner_id.ai"/>
+                                </div>
+                            </div>
+                            <div>
+                                <span t-if="o.partner_id.nif">
+                                    <b>NIF :</b>
+                                    <span t-field="o.partner_id.nif"/>
+                                </span>
+                                <span t-if="o.partner_id.nis">
+                                    <b>NIS :</b>
+                                    <span t-field="o.partner_id.nis"/>
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </xpath>
+
+
+        <!-- Remove the existing h2 header inside the page div -->
+        <xpath expr="//div[@class='page']/h2" position="replace"/>
+
+        <!-- Remove Please use the following communication for your payment -->
+        <xpath expr="//p[@name='payment_communication']" position="replace"/>
+
+
+        <!-- Remove the existing document information section inside the page div -->
+        <xpath expr="//div[@class='page']/div[@id='informations']" position="replace"/>
+
+
+    </template>
+
+
+    <template id="report_account_invoice_document_custom_base_inhirited"
+              inherit_id="l10n_dz_invoice.report_account_invoice_document_custom_base">
+
+        <!-- Placer le cachet
+        <xpath expr="//p[contains(text(), 'Visa / Signature :') and contains(@style, 'text-decoration:underline')]"
+               position="after">
+            <div class="mt-2 text-center" t-if="o.company_id.company_stamp">
+                <img t-att-src="image_data_uri(o.company_id.company_stamp)"
+                     style="max-height: 160px; max-width: 160px;" alt="Cachet de la Société"/>
+            </div>
+        </xpath> -->
+        <!-- Remove Solde actuel -->
+        <xpath expr="//strong[contains(text(), 'Solde actuel:')]" position="replace"/>
+
+    </template>
+
+</odoo>

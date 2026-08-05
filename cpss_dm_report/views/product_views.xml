@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    
+    <!-- Héritage de la vue formulaire product.template -->
+    <record id="product_template_form_view_medical_device" model="ir.ui.view">
+        <field name="name">product.template.form.medical.device</field>
+        <field name="model">product.template</field>
+        <field name="inherit_id" ref="product.product_template_form_view"/>
+        <field name="arch" type="xml">
+            <notebook position="inside">
+                <page string="Dispositif Médical" name="medical_device">
+                    <group>
+                        <group string="Informations Dispositif Médical">
+                            <field name="is_medical_device"/>
+                            <field name="medical_device_designation" 
+                                   attrs="{'invisible': [('is_medical_device', '=', False)]}"/>
+                        </group>
+                        <group string="Origine et Certification" 
+                               attrs="{'invisible': [('is_medical_device', '=', False)]}">
+                            <field name="country_origin_id"/>
+                            <field name="certification_type"/>
+                        </group>
+                    </group>
+                    <group attrs="{'invisible': [('is_medical_device', '=', False)]}">
+                        <group string="Fabricant">
+                            <field name="manufacturer_id"/>
+                        </group>
+                    </group>
+                </page>
+            </notebook>
+        </field>
+    </record>
+
+    <!-- Héritage de la vue liste product.template -->
+    <record id="product_template_tree_view_medical_device" model="ir.ui.view">
+        <field name="name">product.template.tree.medical.device</field>
+        <field name="model">product.template</field>
+        <field name="inherit_id" ref="product.product_template_tree_view"/>
+        <field name="arch" type="xml">
+            <field name="categ_id" position="after">
+                <field name="is_medical_device" optional="hide"/>
+            </field>
+        </field>
+    </record>
+
+    <!-- Filtre de recherche pour les dispositifs médicaux -->
+    <record id="product_template_search_view_medical_device" model="ir.ui.view">
+        <field name="name">product.template.search.medical.device</field>
+        <field name="model">product.template</field>
+        <field name="inherit_id" ref="product.product_template_search_view"/>
+        <field name="arch" type="xml">
+            <filter name="filter_to_sell" position="after">
+                <separator/>
+                <filter string="Dispositifs Médicaux" 
+                        name="filter_medical_device" 
+                        domain="[('is_medical_device', '=', True)]"/>
+            </filter>
+        </field>
+    </record>
+
+    <!-- Vue formulaire de la catégorie produit -->
+    <record id="product_category_form_view_medical_device" model="ir.ui.view">
+        <field name="name">product.category.form.medical.device</field>
+        <field name="model">product.category</field>
+        <field name="inherit_id" ref="product.product_category_form_view"/>
+        <field name="arch" type="xml">
+            <field name="parent_id" position="after">
+                <field name="is_medical_device_category"/>
+            </field>
+        </field>
+    </record>
+
+    <!-- Action menu pour les dispositifs médicaux -->
+    <record id="action_product_template_medical_device" model="ir.actions.act_window">
+        <field name="name">Dispositifs Médicaux</field>
+        <field name="res_model">product.template</field>
+        <field name="view_mode">tree,form,kanban</field>
+        <field name="domain">[('is_medical_device', '=', True)]</field>
+        <field name="context">{'default_is_medical_device': True}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Créer un nouveau dispositif médical
+            </p>
+        </field>
+    </record>
+
+    <!-- Sous-menu Dispositifs Médicaux dans Inventaire -->
+    <menuitem id="menu_medical_device_main"
+              name="Dispositifs Médicaux"
+              parent="stock.menu_stock_root"
+              sequence="40"/>
+
+    <menuitem id="menu_medical_device_products_list"
+              name="Dispositifs Médicaux"
+              parent="menu_medical_device_main"
+              action="action_product_template_medical_device"
+              sequence="10"/>
+
+    <menuitem id="menu_medical_device_report_wizard"
+              name="Rapport Mensuel (Excel)"
+              parent="menu_medical_device_main"
+              action="action_medical_device_report_wizard"
+              sequence="20"/>
+
+</odoo>

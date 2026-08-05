@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Factures et rapports personnalisés aux normes Algériennes - Module Odoo</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .header {
+            text-align: center;
+            background: rgba(255, 255, 255, 0.95);
+            padding: 40px 20px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        }
+        
+        .company-logo {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            margin: 0 auto 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 24px;
+            font-weight: bold;
+            background-image: url('logo.png');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+        }
+        
+        .header h1 {
+            color: #2c3e50;
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+        
+        .header p {
+            color: #7f8c8d;
+            font-size: 1.2em;
+        }
+        
+        .content {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+        
+        .card {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
+        }
+        
+        .card h2 {
+            color: #2c3e50;
+            margin-bottom: 15px;
+            font-size: 1.8em;
+            border-bottom: 3px solid #3498db;
+            padding-bottom: 10px;
+        }
+        
+        .card ul {
+            list-style: none;
+            padding-left: 0;
+        }
+        
+        .card li {
+            padding: 8px 0;
+            border-bottom: 1px solid #ecf0f1;
+            position: relative;
+            padding-left: 20px;
+        }
+        
+        .card li:before {
+            content: "✓";
+            position: absolute;
+            left: 0;
+            color: #27ae60;
+            font-weight: bold;
+        }
+        
+        .specs {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+        
+        .spec-item {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            border-left: 4px solid #3498db;
+        }
+        
+        .spec-label {
+            font-weight: bold;
+            color: #2c3e50;
+            display: block;
+            margin-bottom: 5px;
+        }
+        
+        .spec-value {
+            color: #7f8c8d;
+        }
+        
+        .footer {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 30px;
+            border-radius: 15px;
+            text-align: center;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+        }
+        
+        .footer h3 {
+            color: #2c3e50;
+            margin-bottom: 15px;
+        }
+        
+        .contact-info {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 30px;
+            flex-wrap: wrap;
+        }
+        
+        .contact-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: #7f8c8d;
+        }
+        
+        .badge {
+            display: inline-block;
+            background: #27ae60;
+            color: white;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.9em;
+            margin: 5px;
+        }
+        
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2em;
+            }
+            
+            .contact-info {
+                flex-direction: column;
+                gap: 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="company-logo">CPSS</div>
+            <h1>Factures et rapports personnalisés aux normes Algériennes</h1>
+            <p>Module Odoo pour la conformité fiscale algérienne</p>
+            <div>
+                <span class="badge">Odoo 16.0</span>
+                <span class="badge">Version 16.0.2.1</span>
+                <span class="badge">Personnalisé</span>
+            </div>
+        </div>
+        
+        <div class="content">
+            <div class="card">
+                <h2>🎯 Fonctionnalités Principales</h2>
+                <ul>
+                    <li>Factures conformes aux normes algériennes</li>
+                    <li>Rapports de vente personnalisés</li>
+                    <li>Bons de commande adaptés</li>
+                    <li>Factures de comptabilité</li>
+                    <li>Bordereaux de livraison</li>
+                    <li>En-têtes et pieds de page personnalisables</li>
+                </ul>
+            </div>
+            
+            <div class="card">
+                <h2>📋 Rapports Inclus</h2>
+                <ul>
+                    <li>Rapport de facture de vente</li>
+                    <li>Rapport de bon de commande</li>
+                    <li>Rapport de facture d'achat</li>
+                    <li>Bon de livraison avec 02 modèles</li>
+                    <li>Modèles d'en-tête et de footer modifiés</li>
+                    <li>Insertion du cachet</li>
+                </ul>
+            </div>
+            
+            <div class="card">
+                <h2>⚙️ Spécifications Techniques</h2>
+                <div class="specs">
+                    <div class="spec-item">
+                        <span class="spec-label">Version Odoo</span>
+                        <span class="spec-value">16</span>
+                    </div>
+                    <div class="spec-item">
+                        <span class="spec-label">Licence</span>
+                        <span class="spec-value">LGPL-3</span>
+                    </div>
+                    <div class="spec-item">
+                        <span class="spec-label">Catégorie</span>
+                        <span class="spec-value">Accounting</span>
+                    </div>
+                    <div class="spec-item">
+                        <span class="spec-label">Prix</span>
+                        <span class="spec-value">Module spécifique</span>
+                    </div>
+                    <div class="spec-item">
+                        <span class="spec-label">Auto-install</span>
+                        <span class="spec-value">Non</span>
+                    </div>
+                    <div class="spec-item">
+                        <span class="spec-label">Installable</span>
+                        <span class="spec-value">Oui</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="footer">
+            <h3>Développé par Cedar Peak Systems & Solutions</h3>
+            <div class="contact-info">
+                <div class="contact-item">
+                    <span>🌐</span>
+                    <a href="https://cedarpss.com/" target="_blank" style="color: #3498db; text-decoration: none;">cedarpss.com</a>
+                </div>
+                <div class="contact-item">
+                    <span>📧</span>
+                    <span>Support technique disponible</span>
+                </div>
+                <div class="contact-item">
+                    <span>🇩🇿</span>
+                    <span>Spécialisé pour le marché algérien</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

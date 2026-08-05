@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+
+    <!-- Modifier le template external_layout_boxed pour ajouter le deuxième logo -->
+    <template id="external_layout_footer_inherit_enhanced" inherit_id="web.external_layout_bold">
+        <xpath expr="//div[@class='o_clean_header']" position="replace">
+            <div class="o_clean_header">
+                <div class="row mb8">
+                <div class="col-4 mt-4">
+                    <img t-if="company.logo" t-att-src="image_data_uri(company.logo)" alt="Logo"/>
+                </div>
+                <div class="col-4 text-center">
+                    <!-- Deuxième logo au centre -->
+                    <img t-if="env.company.second_logo"
+                         t-att-src="image_data_uri(env.company.second_logo if env.company.second_logo else company.company_id.second_logo)"
+                         alt="Deuxième Logo" style="max-height: 120px;"/>
+                </div>
+                <div class="col-4 text-end">
+                    <div t-field="company.report_header"/>
+                    <div name="company_address" class="float-end">
+                    <div> <h4 class="text-primary mb-3"><span t-field="company.name"/>, <span t-field="company.forme_juridique.code"/></h4></div>
+                    <div> <span t-field="company.street"/> </div>
+                    <div> <span t-field="company.street2"/> </div>
+                    <div> <span t-field="company.zip"/> <span t-field="company.city"/> <span t-if="company.state_id">(<span t-field="company.state_id"/>),</span> <span t-field="company.country_id"/> </div>
+                </div>
+
+                </div>
+            </div>
+            </div>
+        </xpath>
+
+        <xpath expr="//div[@t-attf-class='footer o_clean_footer o_company_#{company.id}_layout']" position="replace">
+       <div t-attf-class="footer o_boxed_footer o_company_#{company.id}_layout">
+           <div class="text-center" style="font-size:10px; padding-top:8px; padding-bottom:5px;">
+
+               <!-- Section 1: Capital Social -->
+               <div class="mb-2" t-if="company.capital_social">
+                   <strong t-field="company.name"/> au capital Social de <strong t-field="company.capital_social"/> <span t-field="company.currency_id.symbol"/>
+               </div>
+
+               <!-- Section 2: Informations légales en tableau -->
+               <div class="mb-2">
+                    <div class="row text-center" style="font-size:9px;">
+                        <div class="col-3" t-if="company.rc" style="padding:2px;">
+                            <strong>RC N°:</strong> <span t-field="company.rc"/>
+                        </div>
+                        <div class="col-3" t-if="company.ai" style="padding:2px;">
+                            <strong>AI:</strong> <span t-field="company.ai"/>
+                        </div>
+                        <div class="col-3" t-if="company.nif" style="padding:2px;">
+                            <strong>NIF:</strong> <span t-field="company.nif"/>
+                        </div>
+                        <div class="col-3" t-if="company.nis" style="padding:2px;">
+                            <strong>NIS:</strong> <span t-field="company.nis"/>
+                        </div>
+                    </div>
+                </div>
+
+               <!-- Section 3: Informations bancaires -->
+               <div class="mb-2" t-if="company.partner_id.bank_ids">
+                   <strong>Compte bancaire:</strong>
+                   <span t-field="company.partner_id.bank_ids[0].bank_id.name"/> -
+                   <span t-field="company.partner_id.bank_ids[0].acc_number"/>
+               </div>
+
+               <!-- Section 4: Footer personnalisé -->
+               <div class="mb-2" name="financial_infos" t-if="company.report_footer">
+                   <span t-field="company.report_footer"/>
+               </div>
+
+               <!-- Section 5: Numérotation des pages -->
+               <div t-if="report_type == 'pdf'" class="text-muted" style="font-size:8px; margin-top:5px;">
+                   Page <span class="page"/> / <span class="topage"/>
+               </div>
+           </div>
+       </div>
+    </xpath>
+    </template>
+
+</odoo>

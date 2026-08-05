@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Héritage de la vue formulaire stock.lot -->
+    <record id="stock_lot_form_view_medical_device" model="ir.ui.view">
+        <field name="name">stock.lot.form.medical.device</field>
+        <field name="model">stock.lot</field>
+        <field name="inherit_id" ref="product_expiry.view_move_form_expiry"/>
+        <field name="arch" type="xml">
+            <field name="expiration_date" position="after">
+                <field name="manufacturing_date"/>
+            </field>
+        </field>
+    </record>
+
+    <!-- Héritage de la vue liste stock.lot -->
+    <record id="stock_lot_tree_view_medical_device" model="ir.ui.view">
+        <field name="name">stock.lot.tree.medical.device</field>
+        <field name="model">stock.lot</field>
+        <field name="inherit_id" ref="stock.view_production_lot_tree"/>
+        <field name="arch" type="xml">
+            <field name="product_id" position="after">
+                <field name="manufacturing_date" optional="show"/>
+            </field>
+        </field>
+    </record>
+
+</odoo>

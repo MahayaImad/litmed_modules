@@ -1,0 +1,9 @@
+<odoo>
+<template id="report_invoice_document_hide_lots"
+          inherit_id="account.report_invoice_document">
+
+    <xpath expr="//table[@name='invoice_snln_table']"
+           position="replace"/>
+
+</template>
+</odoo>

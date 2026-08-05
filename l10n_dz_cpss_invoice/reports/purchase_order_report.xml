@@ -1,0 +1,155 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <template id="report_purchaseorder_document_enhanced" inherit_id="purchase.report_purchaseorder_document">
+
+        <!-- Replace the header and address sections -->
+        <xpath expr="//t[@t-set='address']" position="replace">
+            <div class="row">
+                <div class="col-6">
+                    <h3>
+                        <span t-if="o.state in ['draft', 'sent', 'to approve']"> Demande de prix # </span>
+                        <span t-if="o.state in ['purchase', 'done']">Bon de commande #</span>
+                        <span t-if="o.state == 'cancel'">Bon de commande annulée #</span>
+                        <span t-if="o.name != '/'" t-field="o.name"/>
+                    </h3>
+                    <div id="informations" class="row mt-4 mb-14">
+                        <!-- First row - 2 items -->
+                        <div class="col-auto col-3 mw-100 mb-2" t-if="o.user_id" name="user_id">
+                            <strong>Responsable des achats:</strong>
+                            <p class="m-0" t-field="o.user_id"/>
+                        </div>
+                        <div class="col-auto col-3 mw-100 mb-2" t-if="o.partner_ref" name="vendor_code">
+                            <strong>Code:</strong>
+                            <p class="m-0" t-field="o.partner_ref"/>
+                        </div>
+                        <div t-if="o.state in ['purchase','done'] and o.date_approve" class="col-3 bm-2">
+                            <strong>Date BC:</strong>
+                            <p t-field="o.date_approve" class="m-0"/>
+                        </div>
+                        <div t-elif="o.date_order" class="col-3 bm-2">
+                            <strong>Date limite:</strong>
+                            <p t-field="o.date_order" class="m-0"/>
+                        </div>
+                    </div>
+
+
+                </div>
+                <!-- Address Section -->
+                <div class="col-6"
+                     style="width: 50%; border: 1px dotted #333; display: flex; align-items: center; justify-content: center;border-radius: 15px;padding: 20px;">
+                    <h5 style="border-bottom: 1px dotted #333; width: 100%; ">Fournisseur :
+                        <span t-field="o.partner_id.name"/>
+                    </h5>
+                    <div class="custom-address">
+
+                        <div class="address-line " t-if="o.partner_id.street">
+                            <span t-field="o.partner_id.street"/>
+                        </div>
+                        <div class="address-line" t-if="o.partner_id.street2">
+                            <span t-field="o.partner_id.street2"/>
+                        </div>
+                        <div class="address-line" t-if="o.partner_id.zip">
+                            <span t-field="o.partner_id.zip"/>
+                            <span t-field="o.partner_id.city"/>
+                            <span t-if="o.partner_id.state_id">(<span t-field="o.partner_id.state_id"/>),
+                            </span>
+                            <span t-field="o.partner_id.country_id"/>
+                        </div>
+
+                        <div class="contact-info">
+                            <div t-if="o.partner_id.phone">
+                                <b>Tél:</b>
+                                <span t-field="o.partner_id.phone"/>
+                            </div>
+                            <div t-if="o.partner_id.mobile">
+                                <b>Mobile:</b>
+                                <span t-field="o.partner_id.mobile"/>
+                            </div>
+                            <div t-if="o.partner_id.fax">
+                                <b>Fax:</b>
+                                <span t-field="o.partner_id.fax"/>
+                            </div>
+                        </div>
+
+                        <div class="legal-info">
+                            <t t-if="o.company_id.activity_code_in_invoice == True">
+                                <t t-if="o.partner_id.company_type == 'company'">
+                                    <div t-if="o.partner_id.activity_code">
+                                        <strong>Code d'activité :</strong>
+                                        <span t-field="o.partner_id.activity_code"/>
+                                    </div>
+                                </t>
+                                <t t-else="">
+                                    <t t-if="o.partner_id.parent_id">
+                                        <div t-if="o.partner_id.parent_id.activity_code">
+                                            <strong>Code d'activité :</strong>
+                                            <span t-field="o.partner_id.parent_id.activity_code"/>
+                                        </div>
+                                    </t>
+                                </t>
+                            </t>
+
+                            <t t-if="o.company_id.industry_id_in_invoice == True">
+                                <t t-if="o.partner_id.company_type == 'company'">
+                                    <div t-if="o.partner_id.industry_id.name">
+                                        <strong>Secteur d'activité :</strong>
+                                        <span t-field="o.partner_id.industry_id.name"/>
+                                    </div>
+                                </t>
+                                <t t-else="">
+                                    <t t-if="o.partner_id.parent_id">
+                                        <div t-if="o.partner_id.parent_id.industry_id.name">
+                                            <strong>Secteur d'activité :</strong>
+                                            <span t-field="o.partner_id.parent_id.industry_id.name"/>
+                                        </div>
+                                    </t>
+                                </t>
+                            </t>
+
+                            <div>
+                                <span t-if="o.partner_id.rc">
+                                    <b>RC N°:</b>
+                                    <span t-field="o.partner_id.rc"/>
+                                </span>
+                                <span t-if="o.partner_id.ai">
+                                    <b>AI :</b>
+                                    <span t-field="o.partner_id.ai"/>
+                                </span>
+                            </div>
+                            <div>
+                                <span t-if="o.partner_id.nif">
+                                    <b>NIF :</b>
+                                    <span t-field="o.partner_id.nif"/>
+                                </span>
+                                <span t-if="o.partner_id.nis">
+                                    <b>NIS :</b>
+                                    <span t-field="o.partner_id.nis"/>
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </xpath>
+
+        <!-- Remove the existing h2 header inside the page div -->
+        <xpath expr="//div[@class='page']/div[2]" position="replace"/>
+
+        <!-- Remove the existing document information section inside the page div -->
+        <xpath expr="//div[@class='page']/div[@id='informations']" position="replace"/>
+
+        <xpath expr="//th[@name='th_taxes']" position="replace">
+            <th name="th_taxes"><strong>TVA</strong></th>
+        </xpath>
+
+    </template>
+
+    <template id="remove_matrix_from_purchase" inherit_id="purchase_product_matrix.grid_purchaseorder_inherit">
+        <xpath expr="//t[@t-call='product_matrix.matrix']" position="replace">
+            <!-- Matrice supprimée -->
+        </xpath>
+    </template>
+
+</odoo>

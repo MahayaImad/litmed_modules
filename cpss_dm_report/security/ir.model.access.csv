@@ -1,0 +1,3 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_cpss_dm_report_wizard_user,cpss.dm.report.wizard.user,model_cpss_dm_report_wizard,stock.group_stock_user,1,1,1,1
+access_cpss_dm_report_wizard_manager,cpss.dm.report.wizard.manager,model_cpss_dm_report_wizard,stock.group_stock_manager,1,1,1,1
