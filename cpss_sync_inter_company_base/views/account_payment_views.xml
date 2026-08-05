@@ -35,17 +35,13 @@
                 </xpath>
 
                 <xpath expr="//field[@name='ref']" position="after">
-                    <field name="is_operational_company"
-                           attrs="{'invisible': True}" />
-
                     <field name="partage"
                            attrs="{'invisible': [('is_operational_company', '!=', True)]}"
                            readonly="1"
                            widget="badge"
                            decoration-info="partage == 'not_shared'"
-                           decoration-warning="partage == 'proposed'"
                            decoration-success="partage == 'shared'"
-                           decoration-danger="partage == 'refused'"/>
+                           decoration-danger="partage == 'error'"/>
                 </xpath>
 
                 <!-- Ajouter les liens inter-sociétés -->
@@ -86,9 +82,8 @@
                            optional="show"
                            widget="badge"
                            decoration-info="partage == 'not_shared'"
-                           decoration-warning="partage == 'proposed'"
                            decoration-success="partage == 'shared'"
-                           decoration-danger="partage in ['refused', 'error']"/>
+                           decoration-danger="partage == 'error'"/>
                 </xpath>
 
             </field>

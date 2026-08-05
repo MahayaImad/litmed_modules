@@ -8,6 +8,20 @@
             <field name="model">cpss.sync.config</field>
             <field name="arch" type="xml">
                 <form string="Configuration Synchronisation Inter-Sociétés">
+                    <header>
+                        <button name="action_test_synchronisation"
+                                type="object"
+                                string="Tester la configuration"
+                                class="btn-secondary"
+                                groups="cpss_sync_inter_company_base.group_sync_admin"/>
+                        <button name="action_configurer_donnees_partagees"
+                                type="object"
+                                string="Configurer les données partagées"
+                                class="btn-secondary"
+                                confirm="Cette action rend les contacts et produits des deux sociétés partagés (champ Société vidé). L'opération est irréversible : la société d'origine n'est pas conservée. Continuer ?"
+                                attrs="{'invisible': ['&amp;', ('nb_contacts_a_partager', '=', 0), ('nb_produits_a_partager', '=', 0)]}"
+                                groups="cpss_sync_inter_company_base.group_sync_admin"/>
+                    </header>
                     <sheet>
                         <div class="oe_title">
                             <h1>Configuration Synchronisation Inter-Sociétés</h1>
@@ -25,10 +39,28 @@
                             </group>
                             <group string="Configuration">
                                 <field name="journal_fiscal_defaut_id"
-                                       domain="[('company_id', '=', societe_cible_id)]"
+                                       options="{'no_create': True}"
                                        context="{'default_company_id': societe_cible_id}"/>
                             </group>
                         </group>
+
+                        <group string="Données partagées">
+                            <group>
+                                <field name="nb_contacts_partages"/>
+                                <field name="nb_produits_partages"/>
+                            </group>
+                            <group>
+                                <field name="nb_contacts_a_partager"/>
+                                <field name="nb_produits_a_partager"/>
+                            </group>
+                        </group>
+
+                        <div class="alert alert-warning" role="alert"
+                             attrs="{'invisible': ['&amp;', ('nb_contacts_a_partager', '=', 0), ('nb_produits_a_partager', '=', 0)]}">
+                            Certains contacts ou produits sont rattachés à une seule des deux
+                            sociétés : ils ne sont pas visibles depuis l'autre et la
+                            synchronisation des documents qui les utilisent échouera.
+                        </div>
 
                     </sheet>
                 </form>

@@ -2,23 +2,6 @@
 <odoo>
     <data noupdate="1">
 
-        <!-- Séquences spéciales pour société opérationnelle (BL) -->
-        <record id="sequence_facture_op_vente" model="ir.sequence">
-            <field name="name">Factures Vente Opérationnelle</field>
-            <field name="code">account.move.customer.bl</field>
-            <field name="prefix">BL/%(year)s/</field>
-            <field name="padding">5</field>
-            <field name="company_id" ref="base.main_company"/>
-        </record>
-
-        <record id="sequence_facture_op_achat" model="ir.sequence">
-            <field name="name">Factures Achat Opérationnelle</field>
-            <field name="code">account.move.supplier.bl</field>
-            <field name="prefix">BL/A/%(year)s/</field>
-            <field name="padding">5</field>
-            <field name="company_id" ref="base.main_company"/>
-        </record>
-
         <!-- Donner les droits sync admin à l'administrateur -->
         <record id="base.user_admin" model="res.users">
             <field name="groups_id" eval="[(4, ref('cpss_sync_inter_company_base.group_sync_admin'))]"/>
@@ -26,9 +9,13 @@
 
     </data>
 
-    <!-- Configuration des données partagées (exécutée après installation) -->
-    <data noupdate="0">
-        <function model="cpss.sync.config" name="configurer_donnees_partagees"/>
-    </data>
+    <!--
+        Le partage des contacts et produits (company_id = False) n'est
+        volontairement PAS automatisé ici : il s'agit d'une modification
+        irréversible de données de référence. Elle se déclenche manuellement
+        via le bouton « Configurer les données partagées » de la
+        configuration de synchronisation, et reste limitée aux deux sociétés
+        paramétrées.
+    -->
 
 </odoo>

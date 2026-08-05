@@ -1,34 +1,21 @@
-from . import models
 import logging
+
+from . import models
 
 _logger = logging.getLogger(__name__)
 
 
 def pre_init_hook(cr):
-    """
-    Supprime les colonnes et contraintes FK de l'ancienne version
-    avant que le module (ré)installe son schéma.
-    Fonctionne aussi bien lors d'une mise à jour que d'une réinstallation.
+    """Supprime les artefacts d'une ancienne version du module.
+
+    Ce hook n'est exécuté qu'à l'installation. Les bases déjà installées sont
+    traitées par les scripts de `migrations/`.
     """
     _cleanup_old_columns(cr)
 
 
-def post_init_hook(cr, registry):
-    """Hook exécuté après l'installation du module"""
-    from odoo import api, SUPERUSER_ID
-
-    env = api.Environment(cr, SUPERUSER_ID, {})
-    try:
-        config = env['cpss.sync.config'].search([], limit=1)
-        if config:
-            config.configurer_donnees_partagees()
-        _logger.info("✅ Module CPSS Sync installé avec succès !")
-    except Exception as e:
-        _logger.error("❌ Erreur post-installation : %s", str(e))
-
-
 def _cleanup_old_columns(cr):
-    """Supprime les artefacts de l'ancienne version (idempotent)."""
+    """Supprime les colonnes et contraintes obsolètes (idempotent)."""
 
     ops = [
         # cpss_sync_config — utilisateur technique
@@ -58,12 +45,6 @@ def _cleanup_old_columns(cr):
             cr.execute("SAVEPOINT cpss_cleanup")
             cr.execute(sql)
             cr.execute("RELEASE SAVEPOINT cpss_cleanup")
-        except Exception as e:
+        except Exception as error:
             cr.execute("ROLLBACK TO SAVEPOINT cpss_cleanup")
-            _logger.warning("Cleanup SQL ignoré (%s): %s", sql[:60], e)
-
-
-
-
-
-
+            _logger.warning("Cleanup SQL ignoré (%s) : %s", sql[:60], error)
