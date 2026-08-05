@@ -1,5 +1,4 @@
 from . import cpss_sync_config
-from . import cpss_sync_mapping
 from . import cpss_sync_log
 from . import account_move
 from . import account_payment

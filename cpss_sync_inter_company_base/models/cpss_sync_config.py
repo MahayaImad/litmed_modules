@@ -54,20 +54,6 @@ class CpssSyncConfig(models.Model):
              "lorsque son type correspond au type de la facture d'origine"
     )
 
-    # Correspondances explicites (prioritaires sur la recherche automatique)
-    mapping_taxe_ids = fields.One2many(
-        'cpss.sync.tax.mapping', 'config_id',
-        string="Correspondances de Taxes",
-        help="Correspondances forcées, utilisées en priorité lorsque la "
-             "recherche automatique est ambiguë ou infructueuse"
-    )
-    mapping_compte_ids = fields.One2many(
-        'cpss.sync.account.mapping', 'config_id',
-        string="Correspondances de Comptes",
-        help="Correspondances forcées, utilisées en priorité lorsque la "
-             "recherche automatique est infructueuse"
-    )
-
     # Champs informatifs (lecture seule)
     nb_contacts_partages = fields.Integer(
         string="Contacts Partagés",
@@ -172,20 +158,6 @@ class CpssSyncConfig(models.Model):
                 "cible %(societe)s."
             ) % {'type': type_journal, 'societe': self.societe_cible_id.name})
         return journal
-
-    def get_taxe_cible_forcee(self, taxe_source):
-        """Correspondance de taxe définie manuellement, ou recordset vide."""
-        self.ensure_one()
-        mapping = self.sudo().mapping_taxe_ids.filtered(
-            lambda m: m.taxe_source_id == taxe_source)
-        return mapping[:1].taxe_cible_id
-
-    def get_compte_cible_force(self, compte_source):
-        """Correspondance de compte définie manuellement, ou recordset vide."""
-        self.ensure_one()
-        mapping = self.sudo().mapping_compte_ids.filtered(
-            lambda m: m.compte_source_id == compte_source)
-        return mapping[:1].compte_cible_id
 
     # ------------------------------------------------------------------
     # CONTRAINTES

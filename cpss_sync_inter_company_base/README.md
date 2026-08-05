@@ -34,20 +34,12 @@ cible (paiement non lettré, à rapprocher manuellement).
 Les comptes et les taxes ne sont **pas** partagés entre sociétés : ils restent
 propres à chacune et sont mis en correspondance à la volée.
 
-- **Taxes** : correspondance déclarée dans la configuration si elle existe ;
-  sinon nom + montant, à type d'usage, type de calcul et mode HT/TTC
-  (`price_include`) identiques ; sinon montant seul *si le résultat est
-  unique*. Toute ambiguïté ou absence de correspondance interrompt la
-  synchronisation.
-- **Comptes** : correspondance déclarée si elle existe ; sinon code identique ;
-  sinon code normalisé sur 6/5/4 caractères (ex. `700` → `700000`). Sans
-  correspondance, la synchronisation échoue avec un diagnostic.
-
-Les deux onglets **Correspondances de Taxes** et **Correspondances de Comptes**
-de la configuration permettent de forcer une correspondance lorsque la
-recherche automatique reste ambiguë — typiquement deux taxes cibles de même
-montant. Ces correspondances sont prioritaires sur toutes les autres
-stratégies.
+- **Taxes** : nom + montant + type d'usage ; à défaut, montant + type d'usage
+  *si le résultat est unique*. Toute ambiguïté ou absence de correspondance
+  interrompt la synchronisation.
+- **Comptes** : code identique ; à défaut, code normalisé sur 6/5/4 caractères
+  (ex. `700` → `700000`). Sans correspondance, la synchronisation échoue avec
+  un diagnostic.
 
 Ce choix est volontaire : sur un module de conformité, une facture cible avec
 la mauvaise TVA ou le mauvais compte est plus dangereuse qu'une erreur visible.
