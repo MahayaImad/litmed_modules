@@ -11,7 +11,7 @@
 
                 <!-- Boutons du workflow -->
                 <xpath expr="//header" position="inside">
-                    <field name="is_operational_company" attrs="{'invisible': True}" />
+                    <field name="is_operational_company" invisible="1"/>
 
                     <!-- Bouton Proposer pour Sync -->
                     <button name="action_proposer_sync"
@@ -48,7 +48,6 @@
                     <field name="facture_origine_operationnelle_id"
                            attrs="{'invisible': ['|', ('facture_origine_operationnelle_id', '=', False), ('is_operational_company', '=', True)]}"
                            readonly="1"/>
-                    <field name="active_company_ids" widget="many2many_tags"/>
                     <field name="partage"
                            attrs="{'invisible': [('is_operational_company', '!=', True)]}"
                            readonly="1"
@@ -62,30 +61,6 @@
 
             </field>
         </record>
-
-        <!-- Vue liste avec champ partage
-        <record id="view_move_tree_sync" model="ir.ui.view">
-            <field name="name">account.move.tree.sync</field>
-            <field name="model">account.move</field>
-            <field name="inherit_id" ref="account.view_invoice_tree"/>
-            <field name="arch" type="xml">
-
-                <xpath expr="//field[@name='state']" position="after">
-                    <field name="is_operational_company"
-                           attrs="{'column_invisible': True}" />
-                    <field name="partage"
-                           attrs="{'column_invisible': [('is_operational_company', '!=', True)]}"
-                           optional="show"
-                           widget="badge"
-                           decoration-info="partage == 'not_shared'"
-                           decoration-warning="partage == 'proposed'"
-                           decoration-success="partage == 'shared'"
-                           decoration-danger="partage == 'refused'"/>
-                </xpath>
-
-            </field>
-        </record> -->
-
 
         <record id="view_account_move_filter_sync" model="ir.ui.view">
             <field name="name">account.move.search.sync</field>

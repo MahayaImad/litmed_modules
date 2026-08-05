@@ -3,5 +3,3 @@ access_cpss_sync_config_user,cpss.sync.config.user,model_cpss_sync_config,cpss_s
 access_cpss_sync_config_admin,cpss.sync.config.admin,model_cpss_sync_config,cpss_sync_inter_company_base.group_sync_admin,1,1,1,1
 access_cpss_sync_log_user,cpss.sync.log.user,model_cpss_sync_log,cpss_sync_inter_company_base.group_sync_user,1,0,0,0
 access_cpss_sync_log_admin,cpss.sync.log.admin,model_cpss_sync_log,cpss_sync_inter_company_base.group_sync_admin,1,1,1,1
-access_cpss_sync_history_user,cpss.sync.history.user,model_cpss_sync_history,cpss_sync_inter_company_base.group_sync_user,1,0,0,0
-access_cpss_sync_history_admin,cpss.sync.history.admin,model_cpss_sync_history,cpss_sync_inter_company_base.group_sync_admin,1,1,1,1

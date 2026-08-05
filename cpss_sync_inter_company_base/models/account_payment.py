@@ -1,8 +1,14 @@
 # Copyright 2025 CPSS
 # License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl).
 
-from odoo import api, fields, models, _
+import logging
+
+from odoo import _, api, fields, models
 from odoo.exceptions import UserError
+
+from .cpss_sync_config import GROUPE_SYNC_ADMIN, verifier_groupe_sync
+
+_logger = logging.getLogger(__name__)
 
 
 class AccountPayment(models.Model):
@@ -13,6 +19,7 @@ class AccountPayment(models.Model):
         ('shared', 'Partagé'),
         ('error', 'Erreur de Partage'),
     ], string="État de Partage", default='not_shared', copy=False, readonly=True,
+        index=True, tracking=True,
         help="Indique l'état de partage du paiement avec la société cible")
 
     paiement_societe_cible_id = fields.Many2one(
@@ -20,6 +27,7 @@ class AccountPayment(models.Model):
         string="Paiement Société Cible",
         copy=False,
         readonly=True,
+        check_company=False,
         help="Le paiement correspondant dans la société cible"
     )
 
@@ -28,6 +36,8 @@ class AccountPayment(models.Model):
         string="Paiement Origine",
         copy=False,
         readonly=True,
+        index=True,
+        check_company=False,
         help="Le paiement d'origine de la société opérationnelle"
     )
 
@@ -41,255 +51,233 @@ class AccountPayment(models.Model):
     partage_error_message = fields.Text(
         string="Message d'erreur",
         readonly=True,
+        copy=False,
         help="Détails de l'erreur lors du partage"
     )
 
     @api.depends('company_id')
     def _compute_is_operational_company(self):
         """Détermine si le paiement appartient à la société opérationnelle"""
-        config = self.env['cpss.sync.config'].search([], limit=1)
+        societe_operationnelle = self.env['cpss.sync.config']._get_societe_operationnelle()
         for payment in self:
-            if config:
-                payment.is_operational_company = (payment.company_id == config.societe_operationnelle_id)
-            else:
-                payment.is_operational_company = False
+            payment.is_operational_company = bool(societe_operationnelle) \
+                and payment.company_id == societe_operationnelle
 
     def action_post(self):
-        """Override pour synchroniser automatiquement les paiements sur factures partagées"""
-        res = super(AccountPayment, self).action_post()
+        """Synchronise les paiements rapprochés avec une facture déjà partagée.
+
+        Ce point d'entrée ne couvre que les paiements déjà rapprochés au
+        moment de la validation. Les paiements rapprochés plus tard sont
+        rattrapés lors du partage de la facture
+        (`account.move._synchroniser_paiements_rapproches`).
+        """
+        res = super().action_post()
 
         for payment in self:
             if not payment.is_operational_company:
                 continue
-
-            if payment.partage in ['shared', 'error']:
+            if payment.partage in ('shared', 'error'):
+                continue
+            if not payment._doit_etre_partage():
                 continue
 
-            if payment._doit_etre_partage():
-                try:
+            try:
+                # Savepoint indispensable : sans lui, une erreur SQL laisserait
+                # le curseur inutilisable et ferait échouer la validation du
+                # paiement elle-même.
+                with self.env.cr.savepoint():
                     payment._synchroniser_paiement_automatique()
-                except Exception as e:
-                    payment.write({
-                        'partage': 'error',
-                        'partage_error_message': str(e)
-                    })
+            except Exception as error:
+                _logger.exception("Échec du partage automatique du paiement %s",
+                                  payment.name)
+                payment.write({
+                    'partage': 'error',
+                    'partage_error_message': str(error),
+                })
 
         return res
 
     def _doit_etre_partage(self):
         """Vérifie si le paiement doit être partagé"""
         self.ensure_one()
-
         if not self.reconciled_invoice_ids:
             return False
+        return any(facture.partage == 'shared'
+                   for facture in self.reconciled_invoice_ids)
 
-        for invoice in self.reconciled_invoice_ids:
-            if hasattr(invoice, 'partage') and invoice.partage == 'shared':
-                return True
+    # ------------------------------------------------------------------
+    # PARTAGE
+    # ------------------------------------------------------------------
+    def _partager_paiement(self, config, sync_type):
+        """Crée le paiement correspondant dans la société cible.
 
-        return False
+        Cœur commun aux partages manuel et automatique.
+        """
+        self.ensure_one()
+
+        ctx_fiscal = {
+            'allowed_company_ids': [config.societe_cible_id.id],
+            'check_move_validity': False,
+        }
+        self_sync = self.with_company(config.societe_cible_id) \
+            .with_context(**ctx_fiscal).sudo()
+
+        paiement_cible = self_sync._creer_paiement_cible(config)
+
+        self.write({
+            'partage': 'shared',
+            'paiement_societe_cible_id': paiement_cible.id,
+            'partage_error_message': False,
+        })
+
+        self.env['cpss.sync.log'].sudo()._log_sync_event(
+            operation_name='Synchronisation Paiement',
+            status='success',
+            sync_type=sync_type,
+            source_doc=self,
+            target_doc=paiement_cible,
+            config=config,
+            details="Montant: %s %s" % (self.amount, self.currency_id.name),
+        )
+        self._message_log(body=_("✅ Paiement partagé avec la société cible : %s")
+                          % paiement_cible.name)
+        return paiement_cible
 
     def _synchroniser_paiement_automatique(self):
         """Synchronise automatiquement le paiement vers la société cible"""
         self.ensure_one()
-
         config = self.env['cpss.sync.config'].get_config()
+        return self._partager_paiement(config, 'automatic')
 
-        ctx_fiscal = {
-            'allowed_company_ids': [config.societe_operationnelle_id.id, config.societe_cible_id.id],
-            'check_move_validity': False,
-            'bypass_company_validation': True,
-        }
+    def _creer_paiement_cible(self, config):
+        """Crée le paiement miroir dans la société cible.
 
-        self_sync = self.with_company(config.societe_cible_id).with_context(
-            ctx_fiscal
-        ).sudo()
-
-        paiement_fiscal = self_sync._creer_paiement_fiscal_simple(config)
-
-        self.write({
-            'partage': 'shared',
-            'paiement_societe_cible_id': paiement_fiscal.id,
-            'partage_error_message': False,
-        })
-
-        self._log_partage_success(paiement_fiscal, config)
-
-        self._message_log(
-            body=_("✅ Paiement partagé automatiquement avec la société cible : %s") % paiement_fiscal.name,
-        )
-
-        return paiement_fiscal
-
-    def _creer_paiement_fiscal_simple(self, config):
-        """Crée un paiement simple dans la société cible SANS lien avec les factures"""
+        Le paiement n'est volontairement rapproché avec aucune facture : le
+        lettrage dans la société cible reste à la charge du comptable.
+        """
         self.ensure_one()
 
-        journal_fiscal = self._obtenir_journal_paiement_fiscal(config)
+        existant = self.env['account.payment'].sudo().search([
+            ('paiement_origine_operationnelle_id', '=', self.id),
+            ('company_id', '=', config.societe_cible_id.id),
+        ], limit=1)
+        if existant:
+            return existant
 
-        vals_paiement = {
+        journal_cible = self._obtenir_journal_paiement_cible(config)
+        vals = {
             'payment_type': self.payment_type,
             'partner_type': self.partner_type,
             'partner_id': self.partner_id.id,
             'amount': self.amount,
             'currency_id': self.currency_id.id,
             'date': self.date,
-            'ref': f"SYNC-{self.name}",
-            'journal_id': journal_fiscal.id,
+            'ref': "SYNC-%s" % self.name,
+            'journal_id': journal_cible.id,
             'company_id': config.societe_cible_id.id,
-            'payment_method_line_id': self._obtenir_methode_paiement_cible(journal_fiscal).id,
+            'payment_method_line_id': self._obtenir_methode_paiement_cible(journal_cible).id,
             'paiement_origine_operationnelle_id': self.id,
         }
 
-        paiement_fiscal = self.env['account.payment'].create(vals_paiement)
-        paiement_fiscal.action_post()
+        paiement_cible = self.env['account.payment'].create(vals)
+        paiement_cible.action_post()
+        return paiement_cible
 
-        paiement_fiscal.sudo().write({
-            'paiement_origine_operationnelle_id': self.id
-        })
-
-        return paiement_fiscal
-
-    def _obtenir_journal_paiement_fiscal(self, config):
+    def _obtenir_journal_paiement_cible(self, config):
         """Trouve le journal de paiement équivalent dans la société cible"""
         self.ensure_one()
 
-        journal_fiscal = self.env['account.journal'].sudo().search([
+        journal_cible = self.env['account.journal'].sudo().search([
             ('type', '=', self.journal_id.type),
-            ('company_id', '=', config.societe_cible_id.id)
+            ('company_id', '=', config.societe_cible_id.id),
         ], limit=1)
 
-        if not journal_fiscal:
+        if not journal_cible:
             raise UserError(_(
-                "Aucun journal de type '%s' trouvé dans la société cible."
-            ) % self.journal_id.type)
+                "Aucun journal de type « %(type)s » trouvé dans la société "
+                "cible %(societe)s."
+            ) % {'type': self.journal_id.type,
+                 'societe': config.societe_cible_id.name})
 
-        return journal_fiscal
+        return journal_cible
 
-    def _obtenir_methode_paiement_cible(self, journal_fiscal):
-        """Trouve la méthode de paiement dans le journal fiscal"""
+    def _obtenir_methode_paiement_cible(self, journal_cible):
+        """Trouve la méthode de paiement dans le journal de la société cible"""
         self.ensure_one()
 
         if self.payment_type == 'inbound':
-            methode = journal_fiscal.inbound_payment_method_line_ids[:1]
+            methode = journal_cible.inbound_payment_method_line_ids[:1]
         else:
-            methode = journal_fiscal.outbound_payment_method_line_ids[:1]
+            methode = journal_cible.outbound_payment_method_line_ids[:1]
 
         if not methode:
             raise UserError(_(
-                "Aucune méthode de paiement trouvée pour le journal fiscal %s"
-            ) % journal_fiscal.name)
+                "Aucune méthode de paiement trouvée pour le journal %s de la "
+                "société cible."
+            ) % journal_cible.name)
 
         return methode
 
-    def _log_partage_success(self, paiement_fiscal, config):
-        """Log de succès du partage"""
-        self.ensure_one()
-
-        self.env['cpss.sync.log']._log_sync_event(
-            operation_name='Synchronisation Paiement',
-            status='success',
-            sync_type='automatic',
-            source_doc=self,
-            target_doc=paiement_fiscal,
-            config=config,
-            details=f"Montant: {self.amount} {self.currency_id.name}"
-        )
-
-    def action_retry_partage(self):
-        """Réessayer le partage d'un paiement en erreur"""
-        self.ensure_one()
-
-        if self.partage != 'error':
-            raise UserError(_("Seuls les paiements en erreur peuvent être re-synchronisés."))
-
-        try:
-            self.write({'partage': 'not_shared', 'partage_error_message': False})
-            self._synchroniser_paiement_automatique()
-
-            return {
-                'type': 'ir.actions.client',
-                'tag': 'display_notification',
-                'params': {
-                    'title': _('✅ Succès'),
-                    'message': _('Paiement synchronisé avec succès !'),
-                    'type': 'success',
-                    'sticky': False,
-                }
-            }
-        except Exception as e:
-            self.write({
-                'partage': 'error',
-                'partage_error_message': str(e)
-            })
-            raise UserError(_("Échec de la synchronisation : %s") % str(e))
-
+    # ------------------------------------------------------------------
+    # ACTIONS UI
+    # ------------------------------------------------------------------
     def action_partager_paiement(self):
         """Partager manuellement un paiement vers la société cible"""
         self.ensure_one()
+        verifier_groupe_sync(self.env, GROUPE_SYNC_ADMIN, _("partage de paiement"))
 
         if not self.is_operational_company:
             raise UserError(_("Cette action n'est disponible que dans la société opérationnelle."))
-
         if self.state != 'posted':
             raise UserError(_("Seuls les paiements validés peuvent être partagés."))
-
         if self.partage == 'shared':
             raise UserError(_("Ce paiement est déjà partagé avec la société cible."))
 
         config = self.env['cpss.sync.config'].get_config()
 
         try:
-            ctx_fiscal = {
-                'allowed_company_ids': [config.societe_operationnelle_id.id, config.societe_cible_id.id],
-                'check_move_validity': False,
-            }
-
-            self_sync = self.with_company(config.societe_cible_id).with_context(
-                ctx_fiscal
-            ).sudo()
-
-            paiement_fiscal = self_sync._creer_paiement_fiscal_simple(config)
-
-            self.write({
-                'partage': 'shared',
-                'paiement_societe_cible_id': paiement_fiscal.id,
-                'partage_error_message': False,
-            })
-
-            self._log_partage_success(paiement_fiscal, config)
-
-            self._message_log(
-                body=_("✅ Paiement partagé manuellement avec la société cible : %s") % paiement_fiscal.name,
-            )
-
-            return {
-                'type': 'ir.actions.client',
-                'tag': 'display_notification',
-                'params': {
-                    'title': _('✅ Partage Réussi'),
-                    'message': _(
-                        'Paiement "%s" partagé avec succès !\n\n'
-                        '🏢 Société cible : %s\n'
-                        '💰 Paiement fiscal : %s\n'
-                        '💵 Montant : %s %s'
-                    ) % (
-                        self.name,
-                        config.societe_cible_id.name,
-                        paiement_fiscal.name,
-                        self.amount,
-                        self.currency_id.name
-                    ),
-                    'type': 'success',
-                    'sticky': False,
-                }
-            }
-
+            paiement_cible = self._partager_paiement(config, 'manual')
         except UserError:
             raise
-        except Exception as e:
-            self.write({
-                'partage': 'error',
-                'partage_error_message': str(e)
-            })
-            raise UserError(_("Échec du partage : %s") % str(e))
+        except Exception as error:
+            _logger.exception("Échec du partage manuel du paiement %s", self.name)
+            self.env['cpss.sync.log'].sudo()._log_sync_event_isolated(
+                operation_name='Synchronisation Paiement', status='error',
+                sync_type='manual', error_msg=str(error), source_doc=self,
+                config=config,
+            )
+            raise UserError(_("Échec du partage : %s") % error)
+
+        return {
+            'type': 'ir.actions.client',
+            'tag': 'display_notification',
+            'params': {
+                'title': _('✅ Partage Réussi'),
+                'message': _(
+                    'Paiement "%(source)s" partagé avec succès !\n\n'
+                    '🏢 Société cible : %(societe)s\n'
+                    '💰 Paiement cible : %(cible)s\n'
+                    '💵 Montant : %(montant)s %(devise)s'
+                ) % {
+                    'source': self.name,
+                    'societe': config.societe_cible_id.name,
+                    'cible': paiement_cible.name,
+                    'montant': self.amount,
+                    'devise': self.currency_id.name,
+                },
+                'type': 'success',
+                'sticky': False,
+                'next': {'type': 'ir.actions.client', 'tag': 'reload'},
+            },
+        }
+
+    def action_retry_partage(self):
+        """Réessayer le partage d'un paiement en erreur"""
+        self.ensure_one()
+        verifier_groupe_sync(self.env, GROUPE_SYNC_ADMIN, _("partage de paiement"))
+
+        if self.partage != 'error':
+            raise UserError(_("Seuls les paiements en erreur peuvent être re-synchronisés."))
+
+        self.write({'partage': 'not_shared', 'partage_error_message': False})
+        return self.action_partager_paiement()

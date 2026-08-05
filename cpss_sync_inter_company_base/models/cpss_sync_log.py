@@ -1,7 +1,11 @@
 # Copyright 2025 CPSS
 # License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl).
 
-from odoo import api, fields, models, _
+import logging
+
+from odoo import SUPERUSER_ID, api, fields, models, registry
+
+_logger = logging.getLogger(__name__)
 
 
 class CpssSyncLog(models.Model):
@@ -15,7 +19,7 @@ class CpssSyncLog(models.Model):
         ('success', 'Success'),
         ('error', 'Error'),
         ('warning', 'Warning'),
-    ], string="Status", required=True, default='success')
+    ], string="Status", required=True, default='success', index=True)
 
     sync_type = fields.Selection([
         ('manual', 'Manual'),
@@ -60,12 +64,10 @@ class CpssSyncLog(models.Model):
         ]
 
     @api.model
-    def _log_sync_event(self, operation_name, status, sync_type='manual',
-                        error_msg=None, details=None, traceback=None,
-                        source_doc=None, target_doc=None, config=None):
-        """
-        Méthode utilitaire pour enregistrer un événement de synchronisation
-        """
+    def _prepare_sync_log_vals(self, operation_name, status, sync_type='manual',
+                               error_msg=None, details=None,
+                               source_doc=None, target_doc=None, config=None):
+        """Construit les valeurs d'un log à partir des enregistrements liés."""
         vals = {
             'operation_name': operation_name,
             'status': status,
@@ -75,29 +77,61 @@ class CpssSyncLog(models.Model):
             'end_time': fields.Datetime.now(),
         }
 
-        # Informations du document source
-        if source_doc:
+        for doc, prefixe in ((source_doc, 'source'), (target_doc, 'target')):
+            if not doc:
+                continue
             vals.update({
-                'source_document_model': source_doc._name,
-                'source_document_id': source_doc.id,
-                'source_document_name': source_doc.display_name,
-                'source_document_ref': f"{source_doc._name},{source_doc.id}",
+                '%s_document_model' % prefixe: doc._name,
+                '%s_document_id' % prefixe: doc.id,
+                '%s_document_name' % prefixe: doc.display_name,
+                '%s_document_ref' % prefixe: "%s,%s" % (doc._name, doc.id),
             })
 
-        # Informations du document cible
-        if target_doc:
-            vals.update({
-                'target_document_model': target_doc._name,
-                'target_document_id': target_doc.id,
-                'target_document_name': target_doc.display_name,
-                'target_document_ref': f"{target_doc._name},{target_doc.id}",
-            })
-
-        # Sociétés impliquées
         if config:
             vals.update({
                 'societe_operationnelle_id': config.societe_operationnelle_id.id,
                 'societe_cible_id': config.societe_cible_id.id,
             })
 
-        return self.create(vals)
+        return vals
+
+    @api.model
+    def _log_sync_event(self, **kwargs):
+        """Enregistre un événement dans la transaction courante.
+
+        À réserver aux succès : en cas d'erreur la transaction est annulée et
+        le log disparaîtrait avec elle (voir `_log_sync_event_isolated`).
+        """
+        return self.create(self._prepare_sync_log_vals(**kwargs))
+
+    @api.model
+    def _log_sync_event_isolated(self, **kwargs):
+        """Enregistre un événement dans une transaction dédiée.
+
+        Un `raise` annule toute la transaction Odoo : un log d'erreur écrit
+        sur le curseur courant serait annulé en même temps que l'opération
+        qui a échoué. On utilise donc un curseur séparé, validé indépendamment.
+        """
+        try:
+            vals = self._prepare_sync_log_vals(**kwargs)
+        except Exception:
+            # Le curseur courant peut être inutilisable (erreur SQL en amont) :
+            # on retombe sur les seules informations déjà disponibles.
+            _logger.exception("Préparation du log de synchronisation impossible")
+            vals = {
+                'operation_name': kwargs.get('operation_name') or 'Synchronisation',
+                'status': kwargs.get('status') or 'error',
+                'sync_type': kwargs.get('sync_type') or 'manual',
+                'error_message': kwargs.get('error_msg'),
+            }
+
+        try:
+            with registry(self.env.cr.dbname).cursor() as cr:
+                api.Environment(cr, SUPERUSER_ID, {})['cpss.sync.log'].create(vals)
+        except Exception:
+            # Le log ne doit jamais masquer l'erreur d'origine.
+            _logger.exception(
+                "Écriture du log de synchronisation impossible : %s",
+                vals.get('error_message'))
+            return False
+        return True
