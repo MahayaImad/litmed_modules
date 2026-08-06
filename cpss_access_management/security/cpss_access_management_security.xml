@@ -21,48 +21,53 @@
             <field name="implied_ids" eval="[(4, ref('group_access_manager'))]"/>
         </record>
 
-        <!-- ================= Record rules ================= -->
+        <!-- ================= Record rules =================
+             La portée est `user.company_ids` et non `company_ids` : un
+             administrateur doit pouvoir configurer une restriction pour
+             une société sans devoir d'abord l'activer dans le sélecteur.
+             `company_ids` ne contient que les sociétés cochées, ce qui
+             interdisait de créer une règle visant une autre société. -->
 
         <record id="rule_access_profile_company" model="ir.rule">
             <field name="name">Access Profile: multi-company</field>
             <field name="model_id" ref="model_cpss_access_profile"/>
-            <field name="domain_force">[('company_id', 'in', company_ids + [False])]</field>
+            <field name="domain_force">[('company_id', 'in', user.company_ids.ids + [False])]</field>
         </record>
 
         <record id="rule_access_menu_rule_company" model="ir.rule">
             <field name="name">Access Rule Menu: multi-company</field>
             <field name="model_id" ref="model_cpss_access_menu_rule"/>
-            <field name="domain_force">[('company_id', 'in', company_ids + [False])]</field>
+            <field name="domain_force">[('company_id', 'in', user.company_ids.ids + [False])]</field>
         </record>
 
         <record id="rule_access_model_rule_company" model="ir.rule">
             <field name="name">Access Rule Model: multi-company</field>
             <field name="model_id" ref="model_cpss_access_model_rule"/>
-            <field name="domain_force">[('company_id', 'in', company_ids + [False])]</field>
+            <field name="domain_force">[('company_id', 'in', user.company_ids.ids + [False])]</field>
         </record>
 
         <record id="rule_access_field_rule_company" model="ir.rule">
             <field name="name">Access Rule Field: multi-company</field>
             <field name="model_id" ref="model_cpss_access_field_rule"/>
-            <field name="domain_force">[('company_id', 'in', company_ids + [False])]</field>
+            <field name="domain_force">[('company_id', 'in', user.company_ids.ids + [False])]</field>
         </record>
 
         <record id="rule_access_button_rule_company" model="ir.rule">
             <field name="name">Access Rule Button: multi-company</field>
             <field name="model_id" ref="model_cpss_access_button_rule"/>
-            <field name="domain_force">[('company_id', 'in', company_ids + [False])]</field>
+            <field name="domain_force">[('company_id', 'in', user.company_ids.ids + [False])]</field>
         </record>
 
         <record id="rule_access_report_rule_company" model="ir.rule">
             <field name="name">Access Rule Report: multi-company</field>
             <field name="model_id" ref="model_cpss_access_report_rule"/>
-            <field name="domain_force">[('company_id', 'in', company_ids + [False])]</field>
+            <field name="domain_force">[('company_id', 'in', user.company_ids.ids + [False])]</field>
         </record>
 
         <record id="rule_access_domain_rule_company" model="ir.rule">
             <field name="name">Access Rule Domain: multi-company</field>
             <field name="model_id" ref="model_cpss_access_domain_rule"/>
-            <field name="domain_force">[('company_id', 'in', company_ids + [False])]</field>
+            <field name="domain_force">[('company_id', 'in', user.company_ids.ids + [False])]</field>
         </record>
 
     </data>

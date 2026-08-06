@@ -157,3 +157,48 @@ class TestCompanyNavbarColor(TransactionCase):
         couleurs = companies.mapped('navbar_color')
         self.assertEqual(len(set(couleurs)), 3,
                          "each company must get its own colour")
+
+
+@tagged('post_install', '-at_install')
+class TestActiveCompanyResolution(TransactionCase):
+    """La société active vient du contexte, pas de la société par défaut."""
+
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        cls.company_a = cls.env['res.company'].create({'name': "Active A"})
+        cls.company_b = cls.env['res.company'].create({'name': "Active B"})
+        cls.user = cls.env['res.users'].create({
+            'name': "Bascule",
+            'login': 'bascule_multi',
+            'groups_id': [Command.set(cls.env.ref('base.group_user').ids)],
+            'company_ids': [Command.set([cls.company_a.id, cls.company_b.id])],
+            'company_id': cls.company_a.id,
+        })
+
+    def setUp(self):
+        super().setUp()
+        self.env.registry.clear_caches()
+        self.addCleanup(self.env.registry.clear_caches)
+
+    def test_01_context_wins_over_default_company(self):
+        """Le contexte prime sur la société par défaut de l'utilisateur."""
+        env = self.env(user=self.user, context={
+            'allowed_company_ids': [self.company_b.id],
+        })
+        self.assertEqual(
+            env['cpss.access.resolver']._get_active_company_id(),
+            self.company_b.id,
+            "la société active est celle envoyée par le client, pas "
+            "company_id de l'utilisateur")
+
+    def test_02_falls_back_on_default_company(self):
+        """Hors requête et sans contexte, la société par défaut fait foi."""
+        env = self.env(user=self.user, context={})
+        self.assertEqual(
+            env['cpss.access.resolver']._get_active_company_id(),
+            self.company_a.id)
+
+    def test_03_cookie_is_ignored_outside_a_request(self):
+        self.assertIsNone(
+            self.env['cpss.access.resolver']._get_company_id_from_cookie())
