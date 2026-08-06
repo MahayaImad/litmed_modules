@@ -58,7 +58,7 @@ class IrUiMenu(models.Model):
         """
         filtered = {
             key: dict(menu) for key, menu in menus.items()
-            if key == 'root' or key not in hidden
+            if self._cpss_identifiant_menu(key) not in hidden
         }
         supprimes = set(hidden)
         while True:
@@ -71,7 +71,7 @@ class IrUiMenu(models.Model):
                             if identifiant not in supprimes]
             vides = {
                 key for key, menu in filtered.items()
-                if key != 'root'
+                if self._cpss_identifiant_menu(key) is not None
                 and not menu.get('action')
                 and not menu.get('children')
             }
@@ -79,7 +79,21 @@ class IrUiMenu(models.Model):
                 return filtered
             for key in vides:
                 del filtered[key]
-            supprimes |= vides
+                supprimes.add(self._cpss_identifiant_menu(key))
+
+    @api.model
+    def _cpss_identifiant_menu(self, cle):
+        """Identifiant de menu porté par une clé de l'arbre.
+
+        Les clés sont des identifiants, sauf ``'root'``. Elles sont converties
+        plutôt que comparées telles quelles : la structure vient d'Odoo et le
+        type exact des clés n'est pas garanti d'une version à l'autre, alors
+        que les identifiants masqués sont toujours des entiers.
+        """
+        try:
+            return int(cle)
+        except (TypeError, ValueError):
+            return None
 
     @api.model
     def _cpss_hidden_menu_ids(self):

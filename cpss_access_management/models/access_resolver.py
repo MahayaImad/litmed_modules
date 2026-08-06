@@ -149,6 +149,88 @@ class CpssAccessResolver(models.AbstractModel):
         self.clear_caches()
 
     # -------------------------------------------------------------------------
+    # DIAGNOSTIC
+    # -------------------------------------------------------------------------
+
+    @api.model
+    def diagnostiquer(self, login, company_id=None):
+        """Explique ce que le module applique — ou non — à un utilisateur.
+
+        À appeler depuis le shell Odoo :
+
+            print(env['cpss.access.resolver'].diagnostiquer('ilyes'))
+
+        Répond à la seule question qui compte quand « rien ne se passe » :
+        l'utilisateur est-il exempté, la règle est-elle retenue, et pour
+        quelle société.
+        """
+        lignes = []
+        user = self.env['res.users'].sudo().search(
+            [('login', '=', login)], limit=1)
+        if not user:
+            return "Aucun utilisateur avec le login %r." % login
+        lignes.append("Utilisateur : %s (id=%s)" % (user.name, user.id))
+
+        exemptions = []
+        if user._is_admin():
+            exemptions.append("administrateur Odoo (base.group_erp_manager "
+                              "ou super-utilisateur)")
+        if user.has_group('cpss_access_management.group_access_manager'):
+            exemptions.append(
+                "membre de « Access Manager » — impliqué par l'accès "
+                "Paramètres (base.group_system)")
+        if exemptions:
+            lignes.append("")
+            lignes.append("EXEMPTÉ : aucune restriction ne lui est appliquée.")
+            for exemption in exemptions:
+                lignes.append("  - %s" % exemption)
+            lignes.append("")
+            lignes.append("C'est volontaire : sans cela, un administrateur "
+                          "pourrait se couper l'accès à la configuration.")
+            lignes.append("Testez avec un utilisateur sans accès Paramètres.")
+            return "\n".join(lignes)
+
+        if not self._has_any_restriction():
+            lignes.append("")
+            lignes.append("Aucune règle n'est configurée dans toute la base.")
+            return "\n".join(lignes)
+
+        if company_id:
+            societe = self.env['res.company'].sudo().browse(company_id)
+        else:
+            societe = user.company_id
+        lignes.append("Société évaluée : %s (id=%s)"
+                      % (societe.display_name, societe.id))
+        lignes.append("Sociétés autorisées : %s"
+                      % ", ".join(user.company_ids.mapped('display_name')))
+
+        profils = self._get_active_profiles(user, societe.id)
+        lignes.append("")
+        lignes.append("Profils retenus dans cette société : %s"
+                      % (", ".join(profils.mapped('name')) or "aucun"))
+        inactifs = user.sudo().access_profile_ids - profils
+        if inactifs:
+            lignes.append("Profils écartés (autre société ou archivés) : %s"
+                          % ", ".join(inactifs.mapped('name')))
+
+        regles = self._get_applicable_rules(user, societe.id)
+        lignes.append("")
+        lignes.append("Règles retenues :")
+        for modele, enregistrements in regles.items():
+            lignes.append("  %-30s %s" % (modele, len(enregistrements)))
+
+        restrictions = self._get_restrictions(user.id, societe.id)
+        menus = self.env['ir.ui.menu'].sudo().browse(
+            sorted(restrictions['menus'])).exists()
+        lignes.append("")
+        lignes.append("Menus masqués (%s) :" % len(menus))
+        for menu in menus:
+            lignes.append("  - %s (id=%s)" % (menu.complete_name, menu.id))
+        if not menus:
+            lignes.append("  aucun — vérifiez la société portée par la règle")
+        return "\n".join(lignes)
+
+    # -------------------------------------------------------------------------
     # RESOLUTION
     # -------------------------------------------------------------------------
 
