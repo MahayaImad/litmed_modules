@@ -1,5 +1,12 @@
 # -*- coding: utf-8 -*-
+import re
+
 from odoo import SUPERUSER_ID, api, models, tools
+from odoo.http import request
+
+# Le cookie `cids` sépare les identifiants par une virgule en 16 ; le tiret
+# est accepté par sécurité, c'est le séparateur des versions suivantes.
+SEPARATEURS_CIDS = re.compile(r'[,\-]')
 
 # Logical operations that can be forbidden on a model, mapped to the boolean
 # field carrying the restriction on ``cpss.access.model.rule``. The first ones
@@ -75,7 +82,45 @@ class CpssAccessResolver(models.AbstractModel):
             return self._empty_restrictions()
         if not self._has_any_restriction():
             return self._empty_restrictions()
-        return self._get_restrictions(env.uid, env.company.id)
+        return self._get_restrictions(env.uid, self._get_active_company_id())
+
+    @api.model
+    def _get_active_company_id(self):
+        """Société dans laquelle l'utilisateur travaille réellement.
+
+        ``env.company`` ne suffit pas. Les routes HTTP qui chargent le menu
+        (``/web/webclient/load_menus/...``) et la page d'accueil ne
+        transportent aucun contexte de société : ``env.company`` y retombe sur
+        la société **par défaut** de l'utilisateur, pas sur celle qu'il a
+        sélectionnée. Une restriction visant une autre société ne se serait
+        alors jamais appliquée aux menus.
+
+        L'ordre de résolution suit la fiabilité de chaque source : le contexte
+        envoyé par le client, puis le cookie ``cids`` qu'il maintient lui-même
+        à chaque basculement, puis la société par défaut.
+        """
+        company_ids = self.env.context.get('allowed_company_ids')
+        if company_ids:
+            return company_ids[0]
+        company_id = self._get_company_id_from_cookie()
+        if company_id and company_id in self.env.user.company_ids.ids:
+            return company_id
+        return self.env.company.id
+
+    @api.model
+    def _get_company_id_from_cookie(self):
+        """Premier identifiant du cookie ``cids``, ou ``None`` hors requête."""
+        try:
+            cids = request.httprequest.cookies.get('cids')
+        except Exception:
+            # Appel hors contexte HTTP : tâche planifiée, shell, tests.
+            return None
+        if not cids:
+            return None
+        try:
+            return int(SEPARATEURS_CIDS.split(cids)[0])
+        except (TypeError, ValueError):
+            return None
 
     @api.model
     def _is_operation_forbidden(self, model_name, operation):
