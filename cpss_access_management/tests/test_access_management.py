@@ -31,8 +31,8 @@ class TestAccessManagement(TransactionCase):
         super().setUp()
         # The resolution cache lives in the registry and survives the rollback
         # of the previous test, so it is dropped before and after each test.
-        self.env.registry.clear_cache()
-        self.addCleanup(self.env.registry.clear_cache)
+        self.env.registry.clear_caches()
+        self.addCleanup(self.env.registry.clear_caches)
 
     # --- Helpers ---
 
@@ -48,7 +48,7 @@ class TestAccessManagement(TransactionCase):
         return cls.env['res.users'].create({
             'name': login.capitalize(),
             'login': login,
-            'group_ids': [Command.set(groups.ids)],
+            'groups_id': [Command.set(groups.ids)],
         })
 
     @classmethod
@@ -62,7 +62,7 @@ class TestAccessManagement(TransactionCase):
         action = cls.env['ir.actions.act_window'].create({
             'name': name,
             'res_model': 'res.partner',
-            'view_mode': 'list,form',
+            'view_mode': 'tree,form',
         })
         return cls.env['ir.ui.menu'].create({
             'name': name,
@@ -155,7 +155,7 @@ class TestAccessManagement(TransactionCase):
                          disable_export=True, disable_duplicate=True)
         partners = self.env['res.partner'].with_user(self.restricted_user)
 
-        list_arch = etree.fromstring(partners.get_view(view_type='list')['arch'])
+        list_arch = etree.fromstring(partners.get_view(view_type='tree')['arch'])
         self.assertEqual(list_arch.get('create'), 'false')
         self.assertEqual(list_arch.get('delete'), 'false')
         self.assertEqual(list_arch.get('export_xlsx'), 'false')
@@ -166,7 +166,7 @@ class TestAccessManagement(TransactionCase):
 
         free_arch = etree.fromstring(
             self.env['res.partner'].with_user(
-                self.free_user).get_view(view_type='list')['arch'])
+                self.free_user).get_view(view_type='tree')['arch'])
         self.assertNotEqual(free_arch.get('create'), 'false')
 
     def test_05_field_attributes(self):

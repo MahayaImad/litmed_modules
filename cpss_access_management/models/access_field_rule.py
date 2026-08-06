@@ -46,10 +46,12 @@ class CpssAccessFieldRule(models.Model):
              "mandatory. No External Link: the internal link opening the "
              "related record is removed.")
 
-    _field_attribute_uniq = models.Constraint(
-        'unique(field_id, attribute, profile_id, user_id)',
-        "This attribute is already set on this field for this profile or user.",
-    )
+    _sql_constraints = [
+        ('field_attribute_uniq',
+         'unique(field_id, attribute, profile_id, user_id)',
+         "This attribute is already set on this field for this profile or "
+         "user."),
+    ]
 
     # -------------------------------------------------------------------------
     # CONSTRAINTS
@@ -71,8 +73,8 @@ class CpssAccessFieldRule(models.Model):
             ]):
                 raise ValidationError(_(
                     "Field %(field)s cannot be required and invisible at the "
-                    "same time: the records could no longer be saved.",
-                    field=rule.field_id.display_name))
+                    "same time: the records could no longer be saved."
+                ) % {'field': rule.field_id.display_name})
 
     # -------------------------------------------------------------------------
     # ONCHANGE

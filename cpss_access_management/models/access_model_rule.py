@@ -63,10 +63,10 @@ class CpssAccessModelRule(models.Model):
         help="Remove the predefined group by entries from the search view of "
              "this model.")
 
-    _model_target_uniq = models.Constraint(
-        'unique(model_id, profile_id, user_id)',
-        "This model already has a rule for this profile or user.",
-    )
+    _sql_constraints = [
+        ('model_target_uniq', 'unique(model_id, profile_id, user_id)',
+         "This model already has a rule for this profile or user."),
+    ]
 
     # -------------------------------------------------------------------------
     # ONCHANGE

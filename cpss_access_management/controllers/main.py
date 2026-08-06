@@ -16,10 +16,10 @@ class CpssAccessDataSet(DataSet):
     """
 
     @http.route()
-    def call_button(self, model, method, args, kwargs, path=None):
+    def call_button(self, model, method, args, kwargs):
         buttons = request.env['cpss.access.resolver']._get_user_restrictions()[
             'buttons'].get(model, {})
         if method in buttons.get('button', ()):
             raise AccessError(_(
                 "Your access profile does not allow you to use this button."))
-        return super().call_button(model, method, args, kwargs, path=path)
+        return super().call_button(model, method, args, kwargs)

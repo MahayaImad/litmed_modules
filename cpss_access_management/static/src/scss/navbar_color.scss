@@ -1,0 +1,20 @@
+// La classe est posée sur <html> par le service cpss_navbar_color, à partir
+// du cookie de société active. Sans elle, rien n'est surchargé et la barre
+// garde son apparence standard.
+:root.cpss_navbar_color {
+    .o_main_navbar {
+        background-color: var(--cpss-navbar-color) !important;
+        border-bottom-color: var(--cpss-navbar-color) !important;
+        color: var(--cpss-navbar-text-color) !important;
+
+        // Les entrées de menu et la zone systray héritent rarement de la
+        // couleur du parent : elles sont ciblées explicitement.
+        > a,
+        .o_menu_brand,
+        .o_menu_sections > *,
+        .o_menu_systray > *,
+        .dropdown-toggle {
+            color: var(--cpss-navbar-text-color) !important;
+        }
+    }
+}

@@ -8,18 +8,11 @@
             <field name="sequence">27</field>
         </record>
 
-        <!-- Odoo 19: groups are organized by privilege (res.groups.privilege),
-             shown as a selection on the user form. -->
-        <record id="res_groups_privilege_access_management" model="res.groups.privilege">
-            <field name="name">Access Management</field>
-            <field name="category_id" ref="module_category_cpss_access_management"/>
-            <field name="sequence">27</field>
-        </record>
-
+        <!-- Odoo 16: a group is attached directly to its module category,
+             which drives the selection shown on the user form. -->
         <record id="group_access_manager" model="res.groups">
             <field name="name">Access Manager</field>
-            <field name="privilege_id" ref="res_groups_privilege_access_management"/>
-            <field name="sequence">10</field>
+            <field name="category_id" ref="module_category_cpss_access_management"/>
             <field name="comment">Configures the access profiles and the per-user restrictions. Members of this group are never restricted themselves, so that the configuration always stays reachable.</field>
         </record>
 

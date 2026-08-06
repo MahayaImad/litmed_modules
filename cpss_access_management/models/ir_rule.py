@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 from odoo import api, models
-from odoo.fields import Domain
+from odoo.osv import expression
 from odoo.tools.safe_eval import safe_eval
 
 
@@ -22,9 +22,6 @@ class IrRule(models.Model):
         if not extra_domains:
             return domain
         eval_context = self._eval_context()
-        return Domain.AND(
-            [domain] + [
-                Domain(safe_eval(extra, eval_context))
-                for extra in extra_domains
-            ]
-        ).optimize(self.env[model_name])
+        domains = [domain] if domain else []
+        domains += [safe_eval(extra, eval_context) for extra in extra_domains]
+        return expression.AND(domains)

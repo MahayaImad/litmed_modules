@@ -16,14 +16,16 @@
                     </group>
                     <separator string="Menu Restrictions"/>
                     <field name="access_menu_rule_ids" nolabel="1">
-                        <list editable="bottom">
+                        <tree editable="bottom">
                             <field name="menu_id" options="{'no_create': True}"/>
                             <field name="include_children"/>
-                        </list>
+                            <field name="company_id" groups="base.group_multi_company"
+                                   options="{'no_create': True}"/>
+                        </tree>
                     </field>
                     <separator string="Model Restrictions"/>
                     <field name="access_model_rule_ids" nolabel="1">
-                        <list editable="bottom">
+                        <tree editable="bottom">
                             <field name="model_id" options="{'no_create': True}"/>
                             <field name="disable_create"/>
                             <field name="disable_edit"/>
@@ -36,30 +38,38 @@
                             <field name="hide_chatter"/>
                             <field name="hide_filters"/>
                             <field name="hide_group_by"/>
-                        </list>
+                            <field name="company_id" groups="base.group_multi_company"
+                                   options="{'no_create': True}"/>
+                        </tree>
                     </field>
                     <separator string="Field Restrictions"/>
                     <field name="access_field_rule_ids" nolabel="1">
-                        <list editable="bottom">
+                        <tree editable="bottom">
                             <field name="model_id" options="{'no_create': True}"/>
                             <field name="field_id" options="{'no_create': True}"/>
                             <field name="attribute"/>
-                        </list>
+                            <field name="company_id" groups="base.group_multi_company"
+                                   options="{'no_create': True}"/>
+                        </tree>
                     </field>
                     <separator string="Button Restrictions"/>
                     <field name="access_button_rule_ids" nolabel="1">
-                        <list editable="bottom">
+                        <tree editable="bottom">
                             <field name="model_id" options="{'no_create': True}"/>
                             <field name="element_type"/>
                             <field name="element_name"/>
-                        </list>
+                            <field name="company_id" groups="base.group_multi_company"
+                                   options="{'no_create': True}"/>
+                        </tree>
                     </field>
                     <separator string="Report Restrictions"/>
                     <field name="access_report_rule_ids" nolabel="1">
-                        <list editable="bottom">
+                        <tree editable="bottom">
                             <field name="report_id" options="{'no_create': True}"/>
                             <field name="model_name"/>
-                        </list>
+                            <field name="company_id" groups="base.group_multi_company"
+                                   options="{'no_create': True}"/>
+                        </tree>
                     </field>
                     <separator string="Domain Restrictions"/>
                     <field name="access_domain_rule_ids" nolabel="1"/>
@@ -71,7 +81,7 @@
     <record id="action_access_users" model="ir.actions.act_window">
         <field name="name">Users</field>
         <field name="res_model">res.users</field>
-        <field name="view_mode">list,form</field>
+        <field name="view_mode">tree,form</field>
         <field name="domain">[('share', '=', False)]</field>
     </record>
 

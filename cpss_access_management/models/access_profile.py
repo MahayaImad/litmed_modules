@@ -49,10 +49,10 @@ class CpssAccessProfile(models.Model):
     rule_count = fields.Integer(
         string="Rules", compute='_compute_rule_count')
 
-    _name_uniq = models.Constraint(
-        'unique(name)',
-        "An access profile with this name already exists.",
-    )
+    _sql_constraints = [
+        ('name_uniq', 'unique(name)',
+         "An access profile with this name already exists."),
+    ]
 
     # -------------------------------------------------------------------------
     # COMPUTE
@@ -106,6 +106,6 @@ class CpssAccessProfile(models.Model):
             'type': 'ir.actions.act_window',
             'name': _("Users"),
             'res_model': 'res.users',
-            'view_mode': 'list,form',
+            'view_mode': 'tree,form',
             'domain': [('id', 'in', self.user_ids.ids)],
         }
