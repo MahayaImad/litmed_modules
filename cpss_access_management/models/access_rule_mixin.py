@@ -32,13 +32,42 @@ class CpssAccessRuleMixin(models.AbstractModel):
     company_id = fields.Many2one(
         'res.company',
         string="Company",
-        help="Restrict this rule to a single company. Empty means it applies "
-             "whatever the company.")
+        help="Company this single rule applies in. Empty means it applies "
+             "whatever the active company.\n"
+             "Only useful on a rule targeting a user directly, or inside a "
+             "profile that carries no company: when the profile already "
+             "carries one, it decides for all of its rules and this field "
+             "should stay empty.")
     active = fields.Boolean(default=True)
 
     # -------------------------------------------------------------------------
     # CONSTRAINTS
     # -------------------------------------------------------------------------
+
+    @api.constrains('company_id', 'profile_id')
+    def _check_company_matches_profile(self):
+        """A rule can never fire against its own profile.
+
+        The profile filter runs first: a profile carrying company A is dormant
+        everywhere else. A rule of that profile carrying company B would
+        therefore need both companies to be active at once — it would simply
+        never apply, silently.
+        """
+        for rule in self:
+            societe_profil = rule.profile_id.company_id
+            if societe_profil and rule.company_id \
+                    and rule.company_id != societe_profil:
+                raise ValidationError(_(
+                    "This rule targets the company %(rule)s while its profile "
+                    "\"%(profile)s\" only applies in %(profile_company)s: the "
+                    "rule could never apply.\n\n"
+                    "Leave the company of the rule empty — the profile already "
+                    "decides — or align the two."
+                ) % {
+                    'rule': rule.company_id.display_name,
+                    'profile': rule.profile_id.display_name,
+                    'profile_company': societe_profil.display_name,
+                })
 
     @api.constrains('profile_id', 'user_id')
     def _check_single_target(self):

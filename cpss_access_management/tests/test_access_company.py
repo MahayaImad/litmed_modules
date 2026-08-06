@@ -281,3 +281,54 @@ class TestMenuHiding(TransactionCase):
         self._menus(self.restreint)
         menus_libre = self._menus(self.libre)
         self.assertIn(self.application.id, menus_libre['root']['children'])
+
+
+@tagged('post_install', '-at_install')
+class TestProfileRuleCompanyConsistency(TransactionCase):
+    """Les deux champs société ne doivent pas pouvoir se contredire."""
+
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        cls.company_a = cls.env['res.company'].create({'name': "Coherence A"})
+        cls.company_b = cls.env['res.company'].create({'name': "Coherence B"})
+        cls.partner_model = cls.env.ref('base.model_res_partner')
+
+    def test_01_rule_company_may_differ_when_profile_has_none(self):
+        """Un profil sans société peut porter des règles ciblées."""
+        profil = self.env['cpss.access.profile'].create({
+            'name': "Profil sans societe",
+        })
+        regle = self.env['cpss.access.model.rule'].create({
+            'profile_id': profil.id,
+            'company_id': self.company_a.id,
+            'model_id': self.partner_model.id,
+            'disable_create': True,
+        })
+        self.assertTrue(regle.exists())
+
+    def test_02_contradictory_rule_is_rejected(self):
+        profil = self.env['cpss.access.profile'].create({
+            'name': "Profil societe A", 'company_id': self.company_a.id,
+        })
+        with self.assertRaises(ValidationError):
+            self.env['cpss.access.model.rule'].create({
+                'profile_id': profil.id,
+                'company_id': self.company_b.id,
+                'model_id': self.partner_model.id,
+                'disable_create': True,
+            })
+
+    def test_03_restricting_the_profile_afterwards_is_rejected(self):
+        """Le piège se referme aussi dans l'autre sens."""
+        profil = self.env['cpss.access.profile'].create({
+            'name': "Profil libre",
+        })
+        self.env['cpss.access.model.rule'].create({
+            'profile_id': profil.id,
+            'company_id': self.company_b.id,
+            'model_id': self.partner_model.id,
+            'disable_create': True,
+        })
+        with self.assertRaises(ValidationError):
+            profil.company_id = self.company_a

@@ -1,5 +1,12 @@
 # -*- coding: utf-8 -*-
 from odoo import _, api, fields, models
+from odoo.exceptions import ValidationError
+
+# Les six familles de règles qu'un profil regroupe.
+RULE_FIELDS = (
+    'menu_rule_ids', 'model_rule_ids', 'field_rule_ids',
+    'button_rule_ids', 'report_rule_ids', 'domain_rule_ids',
+)
 
 
 class CpssAccessProfile(models.Model):
@@ -19,8 +26,11 @@ class CpssAccessProfile(models.Model):
     company_id = fields.Many2one(
         'res.company',
         string="Company",
-        help="Restrict the whole profile to a single company. Empty means it "
-             "applies whatever the company.")
+        help="Company the whole profile applies in. Empty means it applies "
+             "whatever the active company.\n"
+             "When set, every rule of the profile is dormant in the other "
+             "companies: there is then no need to repeat the company on each "
+             "rule.")
     note = fields.Text(string="Internal Note")
     hide_chatter = fields.Boolean(
         string="Hide Chatter Everywhere",
@@ -63,18 +73,41 @@ class CpssAccessProfile(models.Model):
         for profile in self:
             profile.user_count = len(profile.user_ids)
 
-    @api.depends('menu_rule_ids', 'model_rule_ids', 'field_rule_ids',
-                 'button_rule_ids', 'report_rule_ids', 'domain_rule_ids')
+    @api.depends(*RULE_FIELDS)
     def _compute_rule_count(self):
         for profile in self:
-            profile.rule_count = (
-                len(profile.menu_rule_ids)
-                + len(profile.model_rule_ids)
-                + len(profile.field_rule_ids)
-                + len(profile.button_rule_ids)
-                + len(profile.report_rule_ids)
-                + len(profile.domain_rule_ids)
-            )
+            profile.rule_count = sum(
+                len(profile[nom]) for nom in RULE_FIELDS)
+
+    # -------------------------------------------------------------------------
+    # CONSTRAINTS
+    # -------------------------------------------------------------------------
+
+    @api.constrains('company_id')
+    def _check_rules_company(self):
+        """Restreindre le profil ne doit pas rendre ses règles inopérantes.
+
+        Un profil portant une société est dormant dans toutes les autres :
+        une règle visant une société différente ne s'appliquerait jamais.
+        """
+        for profile in self:
+            if not profile.company_id:
+                continue
+            for nom in RULE_FIELDS:
+                incompatibles = profile[nom].filtered(
+                    lambda regle: regle.company_id
+                    and regle.company_id != profile.company_id)
+                if incompatibles:
+                    raise ValidationError(_(
+                        "This profile only applies in %(profile_company)s, but "
+                        "%(count)s of its rules target another company: they "
+                        "could never apply.\n\n"
+                        "Clear the company of those rules — the profile "
+                        "already decides — or align them."
+                    ) % {
+                        'profile_company': profile.company_id.display_name,
+                        'count': len(incompatibles),
+                    })
 
     # -------------------------------------------------------------------------
     # CRUD
