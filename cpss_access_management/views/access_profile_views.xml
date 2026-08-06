@@ -44,8 +44,7 @@
                     </group>
                     <notebook>
                         <page string="Menus" name="menus">
-                            <field name="menu_rule_ids" nolabel="1"
-                                   context="{'default_company_id': company_id}">
+                            <field name="menu_rule_ids" nolabel="1">
                                 <tree editable="bottom">
                                     <field name="menu_id" options="{'no_create': True}"/>
                                     <field name="include_children"/>
@@ -55,8 +54,7 @@
                             </field>
                         </page>
                         <page string="Models" name="models">
-                            <field name="model_rule_ids" nolabel="1"
-                                   context="{'default_company_id': company_id}">
+                            <field name="model_rule_ids" nolabel="1">
                                 <tree editable="bottom">
                                     <field name="model_id" options="{'no_create': True}"/>
                                     <field name="disable_create"/>
@@ -76,8 +74,7 @@
                             </field>
                         </page>
                         <page string="Fields" name="fields">
-                            <field name="field_rule_ids" nolabel="1"
-                                   context="{'default_company_id': company_id}">
+                            <field name="field_rule_ids" nolabel="1">
                                 <tree editable="bottom">
                                     <field name="model_id" options="{'no_create': True}"/>
                                     <field name="field_id" options="{'no_create': True}"/>
@@ -88,8 +85,7 @@
                             </field>
                         </page>
                         <page string="Buttons &amp; Tabs" name="buttons">
-                            <field name="button_rule_ids" nolabel="1"
-                                   context="{'default_company_id': company_id}">
+                            <field name="button_rule_ids" nolabel="1">
                                 <tree editable="bottom">
                                     <field name="model_id" options="{'no_create': True}"/>
                                     <field name="element_type"/>
@@ -100,8 +96,7 @@
                             </field>
                         </page>
                         <page string="Reports" name="reports">
-                            <field name="report_rule_ids" nolabel="1"
-                                   context="{'default_company_id': company_id}">
+                            <field name="report_rule_ids" nolabel="1">
                                 <tree editable="bottom">
                                     <field name="report_id" options="{'no_create': True}"/>
                                     <field name="model_name"/>
@@ -111,8 +106,7 @@
                             </field>
                         </page>
                         <page string="Domains" name="domains">
-                            <field name="domain_rule_ids" nolabel="1"
-                                   context="{'default_company_id': company_id}"/>
+                            <field name="domain_rule_ids" nolabel="1"/>
                         </page>
                         <page string="Users" name="users">
                             <field name="user_ids" nolabel="1" widget="many2many_tags"/>
