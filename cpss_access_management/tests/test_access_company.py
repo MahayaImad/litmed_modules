@@ -202,3 +202,133 @@ class TestActiveCompanyResolution(TransactionCase):
     def test_03_cookie_is_ignored_outside_a_request(self):
         self.assertIsNone(
             self.env['cpss.access.resolver']._get_company_id_from_cookie())
+
+
+@tagged('post_install', '-at_install')
+class TestMenuHiding(TransactionCase):
+    """Le filtrage des menus ne doit fuir sur aucun des deux caches d'Odoo."""
+
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        groupe = cls.env.ref('base.group_user')
+        cls.restreint = cls.env['res.users'].create({
+            'name': "Menu restreint", 'login': 'menu_restreint',
+            'groups_id': [Command.set(groupe.ids)],
+        })
+        cls.libre = cls.env['res.users'].create({
+            'name': "Menu libre", 'login': 'menu_libre',
+            'groups_id': [Command.set(groupe.ids)],
+        })
+        cls.application = cls.env['ir.ui.menu'].create({'name': "App CPSS"})
+        cls.section = cls.env['ir.ui.menu'].create({
+            'name': "Section", 'parent_id': cls.application.id,
+        })
+        action = cls.env['ir.actions.act_window'].create({
+            'name': "Feuille", 'res_model': 'res.partner',
+            'view_mode': 'tree,form',
+        })
+        cls.feuille = cls.env['ir.ui.menu'].create({
+            'name': "Feuille", 'parent_id': cls.section.id,
+            'action': '%s,%s' % (action._name, action.id),
+        })
+
+    def setUp(self):
+        super().setUp()
+        self.env.registry.clear_caches()
+        self.addCleanup(self.env.registry.clear_caches)
+
+    def _menus(self, user):
+        return self.env['ir.ui.menu'].with_user(user).load_menus(False)
+
+    def test_01_hidden_menu_is_absent(self):
+        self.env['cpss.access.menu.rule'].create({
+            'user_id': self.restreint.id, 'menu_id': self.feuille.id,
+        })
+        self.assertNotIn(self.feuille.id, self._menus(self.restreint))
+
+    def test_02_emptied_branch_is_pruned(self):
+        """Masquer la seule feuille doit emporter la section et l'application.
+
+        Sans cet élagage, l'application resterait visible et n'ouvrirait rien.
+        """
+        self.env['cpss.access.menu.rule'].create({
+            'user_id': self.restreint.id, 'menu_id': self.feuille.id,
+        })
+        menus = self._menus(self.restreint)
+        self.assertNotIn(self.section.id, menus)
+        self.assertNotIn(self.application.id, menus)
+        self.assertNotIn(self.application.id, menus['root']['children'])
+
+    def test_03_restriction_does_not_leak_to_other_users(self):
+        """Le cache de load_menus est indexé sur les groupes, pas l'utilisateur.
+
+        L'utilisateur restreint charge ses menus en premier : son voisin, de
+        mêmes groupes, doit malgré tout conserver les siens.
+        """
+        self.env['cpss.access.menu.rule'].create({
+            'user_id': self.restreint.id, 'menu_id': self.feuille.id,
+        })
+        self.assertNotIn(self.feuille.id, self._menus(self.restreint))
+        self.assertIn(self.feuille.id, self._menus(self.libre),
+                      "la restriction d'un utilisateur ne doit pas être "
+                      "servie depuis le cache à un autre")
+
+    def test_04_cached_dictionary_is_never_mutated(self):
+        self.env['cpss.access.menu.rule'].create({
+            'user_id': self.restreint.id, 'menu_id': self.feuille.id,
+        })
+        self._menus(self.restreint)
+        menus_libre = self._menus(self.libre)
+        self.assertIn(self.application.id, menus_libre['root']['children'])
+
+
+@tagged('post_install', '-at_install')
+class TestProfileRuleCompanyConsistency(TransactionCase):
+    """Les deux champs société ne doivent pas pouvoir se contredire."""
+
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        cls.company_a = cls.env['res.company'].create({'name': "Coherence A"})
+        cls.company_b = cls.env['res.company'].create({'name': "Coherence B"})
+        cls.partner_model = cls.env.ref('base.model_res_partner')
+
+    def test_01_rule_company_may_differ_when_profile_has_none(self):
+        """Un profil sans société peut porter des règles ciblées."""
+        profil = self.env['cpss.access.profile'].create({
+            'name': "Profil sans societe",
+        })
+        regle = self.env['cpss.access.model.rule'].create({
+            'profile_id': profil.id,
+            'company_id': self.company_a.id,
+            'model_id': self.partner_model.id,
+            'disable_create': True,
+        })
+        self.assertTrue(regle.exists())
+
+    def test_02_contradictory_rule_is_rejected(self):
+        profil = self.env['cpss.access.profile'].create({
+            'name': "Profil societe A", 'company_id': self.company_a.id,
+        })
+        with self.assertRaises(ValidationError):
+            self.env['cpss.access.model.rule'].create({
+                'profile_id': profil.id,
+                'company_id': self.company_b.id,
+                'model_id': self.partner_model.id,
+                'disable_create': True,
+            })
+
+    def test_03_restricting_the_profile_afterwards_is_rejected(self):
+        """Le piège se referme aussi dans l'autre sens."""
+        profil = self.env['cpss.access.profile'].create({
+            'name': "Profil libre",
+        })
+        self.env['cpss.access.model.rule'].create({
+            'profile_id': profil.id,
+            'company_id': self.company_b.id,
+            'model_id': self.partner_model.id,
+            'disable_create': True,
+        })
+        with self.assertRaises(ValidationError):
+            profil.company_id = self.company_a

@@ -49,7 +49,8 @@
                                     <field name="menu_id" options="{'no_create': True}"/>
                                     <field name="include_children"/>
                                     <field name="company_id" groups="base.group_multi_company"
-                                           options="{'no_create': True}"/>
+                                           options="{'no_create': True}"
+                                           optional="hide"/>
                                 </tree>
                             </field>
                         </page>
@@ -69,7 +70,8 @@
                                     <field name="hide_filters"/>
                                     <field name="hide_group_by"/>
                                     <field name="company_id" groups="base.group_multi_company"
-                                           options="{'no_create': True}"/>
+                                           options="{'no_create': True}"
+                                           optional="hide"/>
                                 </tree>
                             </field>
                         </page>
@@ -80,7 +82,8 @@
                                     <field name="field_id" options="{'no_create': True}"/>
                                     <field name="attribute"/>
                                     <field name="company_id" groups="base.group_multi_company"
-                                           options="{'no_create': True}"/>
+                                           options="{'no_create': True}"
+                                           optional="hide"/>
                                 </tree>
                             </field>
                         </page>
@@ -91,7 +94,8 @@
                                     <field name="element_type"/>
                                     <field name="element_name"/>
                                     <field name="company_id" groups="base.group_multi_company"
-                                           options="{'no_create': True}"/>
+                                           options="{'no_create': True}"
+                                           optional="hide"/>
                                 </tree>
                             </field>
                         </page>
@@ -101,7 +105,8 @@
                                     <field name="report_id" options="{'no_create': True}"/>
                                     <field name="model_name"/>
                                     <field name="company_id" groups="base.group_multi_company"
-                                           options="{'no_create': True}"/>
+                                           options="{'no_create': True}"
+                                           optional="hide"/>
                                 </tree>
                             </field>
                         </page>
