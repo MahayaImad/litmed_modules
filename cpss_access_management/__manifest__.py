@@ -30,7 +30,7 @@ Design principles
     'author': "CPSS",
     'website': "https://www.cpss-dz.com",
     'category': 'Technical/Access Rights',
-    'version': '19.0.1.1.0',
+    'version': '16.0.1.1.0',
     'license': 'LGPL-3',
     'depends': ['base', 'web'],
     'data': [
@@ -39,8 +39,15 @@ Design principles
         'views/access_profile_views.xml',
         'views/access_rule_views.xml',
         'views/res_users_views.xml',
+        'views/res_company_views.xml',
         'views/cpss_access_management_menus.xml',
     ],
+    'assets': {
+        'web.assets_backend': [
+            'cpss_access_management/static/src/scss/navbar_color.scss',
+            'cpss_access_management/static/src/js/navbar_color.js',
+        ],
+    },
     'application': True,
     'installable': True,
 }

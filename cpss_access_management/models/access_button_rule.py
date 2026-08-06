@@ -43,7 +43,8 @@ class CpssAccessButtonRule(models.Model):
              "an object button this is the name of the python method it "
              "calls. A notebook page can also be matched on its label.")
 
-    _element_target_uniq = models.Constraint(
-        'unique(model_id, element_type, element_name, profile_id, user_id)',
-        "This element is already restricted for this profile or user.",
-    )
+    _sql_constraints = [
+        ('element_target_uniq',
+         'unique(model_id, element_type, element_name, profile_id, user_id)',
+         "This element is already restricted for this profile or user."),
+    ]

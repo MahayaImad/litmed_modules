@@ -30,7 +30,7 @@ class TestAccessAdvanced(HttpCase):
             'name': "Restricted",
             'login': "restricted_advanced",
             'password': "restricted_advanced",
-            'group_ids': [Command.set(groups.ids)],
+            'groups_id': [Command.set(groups.ids)],
         })
         cls.profile = cls.env['cpss.access.profile'].create({
             'name': "Advanced Profile",
@@ -39,8 +39,8 @@ class TestAccessAdvanced(HttpCase):
 
     def setUp(self):
         super().setUp()
-        self.env.registry.clear_cache()
-        self.addCleanup(self.env.registry.clear_cache)
+        self.env.registry.clear_caches()
+        self.addCleanup(self.env.registry.clear_caches)
 
     # --- Helpers ---
 
@@ -106,20 +106,20 @@ class TestAccessAdvanced(HttpCase):
             self.assertEqual(page.get('invisible'), '1')
 
     def test_04_chatter_is_removed(self):
-        if not self._partner_arch().findall('.//chatter'):
+        if not self._partner_arch().xpath(".//div[contains(@class, 'oe_chatter')]"):
             self.skipTest("no chatter on res.partner, the mail module is absent")
         self.profile.hide_chatter = True
-        self.assertFalse(self._partner_arch().findall('.//chatter'))
+        self.assertFalse(self._partner_arch().xpath(".//div[contains(@class, 'oe_chatter')]"))
 
     def test_05_chatter_is_removed_per_model(self):
-        if not self._partner_arch().findall('.//chatter'):
+        if not self._partner_arch().xpath(".//div[contains(@class, 'oe_chatter')]"):
             self.skipTest("no chatter on res.partner, the mail module is absent")
         self.env['cpss.access.model.rule'].create({
             'profile_id': self.profile.id,
             'model_id': self.partner_model.id,
             'hide_chatter': True,
         })
-        self.assertFalse(self._partner_arch().findall('.//chatter'))
+        self.assertFalse(self._partner_arch().xpath(".//div[contains(@class, 'oe_chatter')]"))
 
     def test_06_filters_and_group_by_are_removed(self):
         search = self._partner_arch(view_type='search')

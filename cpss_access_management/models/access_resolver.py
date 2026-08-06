@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 from odoo import SUPERUSER_ID, api, models, tools
-from odoo.tools import SQL
 
 # Logical operations that can be forbidden on a model, mapped to the boolean
 # field carrying the restriction on ``cpss.access.model.rule``. The first ones
@@ -48,9 +47,14 @@ class CpssAccessResolver(models.AbstractModel):
     directly (``user_id`` set on a rule record). Nothing ever re-grants what
     another rule forbids.
 
+    Restrictions are resolved for the **active company**, not for the whole
+    set of companies the user may reach: a rule carrying a company applies
+    only while the user works in that company, so the same user can be
+    restricted in one company and free in another.
+
     Every view load and every ORM access check goes through this resolver, so
-    the resolution is cached per user in the registry cache and invalidated by
-    the rule models themselves.
+    the resolution is cached per user and per company in the registry cache,
+    and invalidated by the rule models themselves.
     """
     _name = 'cpss.access.resolver'
     _description = "Access Restriction Resolver"
@@ -71,7 +75,7 @@ class CpssAccessResolver(models.AbstractModel):
             return self._empty_restrictions()
         if not self._has_any_restriction():
             return self._empty_restrictions()
-        return self._get_restrictions(env.uid)
+        return self._get_restrictions(env.uid, env.company.id)
 
     @api.model
     def _is_operation_forbidden(self, model_name, operation):
@@ -97,7 +101,7 @@ class CpssAccessResolver(models.AbstractModel):
     @api.model
     def _clear_caches(self):
         """Drop the resolution cache after any change to the rules."""
-        self.env.registry.clear_cache()
+        self.clear_caches()
 
     # -------------------------------------------------------------------------
     # RESOLUTION
@@ -116,16 +120,19 @@ class CpssAccessResolver(models.AbstractModel):
         self.env.flush_all()
         tables = [self.env[model]._table for model in RULE_MODELS]
         tables.append(self.env['cpss.access.profile']._table)
+        # Chaque branche est parenthésée : sans cela, le LIMIT porterait sur
+        # l'UNION entier et non sur la sous-requête.
         selects = [
-            SQL("(SELECT 1 FROM %s LIMIT 1)", SQL.identifier(table))
-            for table in tables
+            '(SELECT 1 FROM "%s" LIMIT 1)' % table for table in tables
         ]
-        selects.append(SQL(
-            "(SELECT 1 FROM %s WHERE access_hide_chatter LIMIT 1)",
-            SQL.identifier(self.env['res.users']._table)))
-        rows = self.env.execute_query(
-            SQL("SELECT EXISTS (%s)", SQL(" UNION ALL ").join(selects)))
-        return bool(rows and rows[0][0])
+        selects.append(
+            '(SELECT 1 FROM "%s" WHERE access_hide_chatter LIMIT 1)'
+            % self.env['res.users']._table)
+        # Table names come from the registry, never from user input.
+        self.env.cr.execute(
+            "SELECT EXISTS (%s)" % " UNION ALL ".join(selects))
+        row = self.env.cr.fetchone()
+        return bool(row and row[0])
 
     @api.model
     def _empty_restrictions(self):
@@ -140,12 +147,12 @@ class CpssAccessResolver(models.AbstractModel):
         }
 
     @api.model
-    @tools.ormcache('uid')
-    def _get_restrictions(self, uid):
+    @tools.ormcache('uid', 'company_id')
+    def _get_restrictions(self, uid, company_id):
         """Resolve and freeze every restriction applying to ``uid``.
 
-        Cached on the user only: all the inputs (profiles, rules, allowed
-        companies) are stored data, never session data.
+        Cached on the user and the active company: all the inputs (profiles,
+        rules, companies) are stored data, never session data.
         """
         # sudo: the resolution reads groups and profiles of an arbitrary user.
         user = self.env['res.users'].browse(uid).sudo().exists()
@@ -155,7 +162,7 @@ class CpssAccessResolver(models.AbstractModel):
             # they could lock themselves out of the configuration screens.
             return self._empty_restrictions()
 
-        rules = self._get_applicable_rules(user)
+        rules = self._get_applicable_rules(user, company_id)
         return {
             'menus': self._resolve_menus(rules['cpss.access.menu.rule']),
             'models': self._resolve_models(rules['cpss.access.model.rule']),
@@ -164,25 +171,34 @@ class CpssAccessResolver(models.AbstractModel):
             'reports': frozenset(
                 rules['cpss.access.report.rule'].mapped('report_id').ids),
             'domains': self._resolve_domains(rules['cpss.access.domain.rule']),
-            'hide_chatter': self._resolve_hide_chatter(user),
+            'hide_chatter': self._resolve_hide_chatter(user, company_id),
         }
 
     @api.model
-    def _get_applicable_rules(self, user):
+    def _get_active_profiles(self, user, company_id):
+        """Profiles of ``user`` applying in ``company_id``.
+
+        A profile carrying a company is dormant in every other company.
+        """
+        return user.sudo().access_profile_ids.filtered(
+            lambda profile: profile.active and (
+                not profile.company_id or profile.company_id.id == company_id))
+
+    @api.model
+    def _get_applicable_rules(self, user, company_id):
         """Read the active rules of every family for ``user``.
 
         A rule applies when it belongs to one of the user's active profiles or
-        targets the user directly, and when its company (if any) is one of the
-        user's allowed companies.
+        targets the user directly, and when it carries either no company or
+        the company the user is currently working in.
         """
         # sudo: the resolver runs for any user, who has no read access to the
         # access management models themselves.
         user = user.sudo()
-        profile_ids = user.access_profile_ids.filtered('active').ids
-        company_ids = user.company_ids.ids
+        profile_ids = self._get_active_profiles(user, company_id).ids
         domain = [
             '|', ('profile_id', 'in', profile_ids), ('user_id', '=', user.id),
-            ('company_id', 'in', company_ids + [False]),
+            ('company_id', 'in', [company_id, False]),
         ]
         return {
             model: self.env[model].sudo().search(domain)
@@ -260,9 +276,9 @@ class CpssAccessResolver(models.AbstractModel):
         }
 
     @api.model
-    def _resolve_hide_chatter(self, user):
+    def _resolve_hide_chatter(self, user, company_id):
         return bool(
             user.access_hide_chatter
-            or any(user.access_profile_ids.filtered('active').mapped(
+            or any(self._get_active_profiles(user, company_id).mapped(
                 'hide_chatter'))
         )

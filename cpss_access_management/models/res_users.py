@@ -2,8 +2,9 @@
 from odoo import api, fields, models
 
 # Fields whose modification changes the restrictions resolved for a user.
-# ``group_ids``, ``company_ids`` and ``active`` are deliberately absent: they
-# already belong to the native invalidation set.
+# ``groups_id``, ``company_ids`` and ``active`` are deliberately absent: Odoo
+# already drops its own caches for them, and the resolution cache is keyed on
+# the active company anyway.
 CACHE_SENSITIVE_FIELDS = frozenset({
     'access_profile_ids',
     'access_menu_rule_ids',
@@ -67,8 +68,20 @@ class ResUsers(models.Model):
     # CRUD
     # -------------------------------------------------------------------------
 
-    @api.model
-    def _get_invalidation_fields(self):
-        # Native extension point: ``write`` already drops the registry cache
-        # for these, no need to wrap it.
-        return super()._get_invalidation_fields() | CACHE_SENSITIVE_FIELDS
+    # Odoo 16 has no ``_get_invalidation_fields`` extension point, so the
+    # resolution cache is dropped explicitly whenever a field feeding it
+    # changes. Companies are absent on purpose: the cache key already carries
+    # the active company.
+
+    @api.model_create_multi
+    def create(self, vals_list):
+        users = super().create(vals_list)
+        if any(CACHE_SENSITIVE_FIELDS.intersection(vals) for vals in vals_list):
+            self.env['cpss.access.resolver']._clear_caches()
+        return users
+
+    def write(self, values):
+        result = super().write(values)
+        if CACHE_SENSITIVE_FIELDS.intersection(values):
+            self.env['cpss.access.resolver']._clear_caches()
+        return result

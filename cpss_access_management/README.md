@@ -1,4 +1,4 @@
-# Access Management (`cpss_access_management`) — Odoo 19 Community
+# Access Management (`cpss_access_management`) — Odoo 16 Community
 
 Application « **Gestion des Accès** » : un administrateur fonctionnel restreint
 depuis un seul écran ce qu'un utilisateur peut voir et faire — masquer des
@@ -14,7 +14,7 @@ ni de Python.
 1. **Deux couches, toujours.** L'interface est nettoyée pour le confort
    (attributs `create` / `edit` / `delete` / `duplicate` / `export_xlsx` de la
    vue, attributs injectés sur les champs), et l'ORM lève une `AccessError`
-   (`check_access`, `write`, `copy`, `export_data`). Masquer un bouton n'est
+   (`check_access_rights`, `write`, `copy`, `export_data`). Masquer un bouton n'est
    **pas** de la sécurité : seul le second niveau protège contre un appel RPC
    direct.
 2. **Profils et utilisateurs.** Une restriction se configure soit sur un
@@ -112,3 +112,46 @@ casserait la barre de recherche pour tous les modèles. Les filtres et
 regroupements *prédéfinis* d'un modèle, eux, sont bien retirés de l'`arch`
 côté serveur, et les règles de domaine restent la vraie protection : un filtre
 personnalisé ne permet jamais de voir un enregistrement exclu par un domaine.
+
+## Restrictions par société
+
+Chaque règle porte une **société** facultative :
+
+* société vide → la règle s'applique quelle que soit la société active ;
+* société renseignée → la règle ne s'applique que lorsque l'utilisateur
+  travaille dans cette société.
+
+Le même utilisateur peut donc être restreint dans une société et libre dans
+une autre, sans rien changer sur son compte lorsqu'il bascule. La résolution
+est mise en cache sur le couple *(utilisateur, société active)*, et la société
+active est celle du contexte `allowed_company_ids`, c'est-à-dire celle que le
+client envoie réellement.
+
+Un profil peut lui aussi porter une société : il est alors inactif dans toutes
+les autres, règles comprises.
+
+> `load_menus` est mis en cache par Odoo sur les groupes de l'utilisateur — pas
+> sur la société. Le module filtre donc son résultat **en dehors** du cache, sur
+> une copie : modifier le dictionnaire renvoyé par le cache le corromprait pour
+> tout le monde.
+
+## Couleur de société dans la barre de menu
+
+Le champ **Couleur de la barre de menu** (`res.company.navbar_color`, format
+`#RRGGBB`) colore la barre de navigation lorsque la société est active. Sur une
+base multi-sociétés, c'est un garde-fou visuel contre la saisie dans la mauvaise
+société.
+
+Le mécanisme est volontairement côté navigateur :
+
+1. les couleurs de toutes les sociétés autorisées voyagent dans les informations
+   de session, donc aucun appel supplémentaire au chargement ;
+2. la société active est lue dans le **cookie `cids`**, celui que le client
+   maintient lui-même lors d'un basculement de société — la barre reflète donc
+   ce que le client envoie réellement, sans dépendre de l'environnement serveur ;
+3. la couleur du texte (noir ou blanc) est calculée depuis la luminance perçue
+   du fond, pour rester lisible sans second champ à saisir.
+
+Laisser le champ vide conserve l'apparence standard d'Odoo. `res.company` expose
+aussi `action_cpss_couleur_par_defaut()`, qui attribue une couleur distincte à
+chaque société n'en ayant pas.

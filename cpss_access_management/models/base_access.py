@@ -9,7 +9,7 @@ from odoo.exceptions import AccessError
 
 # Root arch attributes turned off per view type when an operation is forbidden.
 ROOT_OPERATION_ATTRIBUTES = {
-    'list': {'create': 'create', 'write': 'edit', 'unlink': 'delete',
+    'tree': {'create': 'create', 'write': 'edit', 'unlink': 'delete',
              'export': 'export_xlsx'},
     'form': {'create': 'create', 'write': 'edit', 'unlink': 'delete',
              'duplicate': 'duplicate'},
@@ -36,9 +36,9 @@ class Base(models.AbstractModel):
 
     * the interface layer (``get_view``, ``fields_get``) removes the buttons
       and fields the user must not use — this is comfort, not security;
-    * the ORM layer (``check_access``, ``write``, ``copy``, ``export_data``)
-      raises ``AccessError``, which is what actually protects the data against
-      a direct RPC call.
+    * the ORM layer (``check_access_rights``, ``write``, ``copy``,
+      ``export_data``) raises ``AccessError``, which is what actually protects
+      the data against a direct RPC call.
 
     Every hook starts with a cached dictionary lookup and returns immediately
     when the user carries no restriction, which is the case for the vast
@@ -65,18 +65,28 @@ class Base(models.AbstractModel):
     def _cpss_raise_forbidden(self, operation):
         raise AccessError(_(
             "Your access profile does not allow you to %(operation)s records "
-            "of type %(model)s.",
-            operation=_(OPERATION_LABELS.get(operation, operation)),
-            model=self._description or self._name))
+            "of type %(model)s."
+        ) % {
+            'operation': _(OPERATION_LABELS.get(operation, operation)),
+            'model': self._description or self._name,
+        })
 
     # -------------------------------------------------------------------------
     # ORM ENFORCEMENT
     # -------------------------------------------------------------------------
 
-    def check_access(self, operation):
-        result = super().check_access(operation)
+    @api.model
+    def check_access_rights(self, operation, raise_exception=True):
+        """Odoo 16 splits the check in ``check_access_rights`` (model level)
+        and ``check_access_rule`` (record level). The model level is the one
+        create/read/write/unlink always go through.
+        """
+        result = super().check_access_rights(
+            operation, raise_exception=raise_exception)
         if operation in self._cpss_forbidden_operations():
-            self._cpss_raise_forbidden(operation)
+            if raise_exception:
+                self._cpss_raise_forbidden(operation)
+            return False
         return result
 
     def write(self, vals):
@@ -111,9 +121,11 @@ class Base(models.AbstractModel):
         if forbidden:
             raise AccessError(_(
                 "Your access profile does not allow you to modify the "
-                "following fields of %(model)s: %(fields)s.",
-                model=self._description or self._name,
-                fields=", ".join(sorted(forbidden))))
+                "following fields of %(model)s: %(fields)s."
+            ) % {
+                'model': self._description or self._name,
+                'fields': ", ".join(sorted(forbidden)),
+            })
 
     # -------------------------------------------------------------------------
     # INTERFACE
@@ -163,6 +175,30 @@ class Base(models.AbstractModel):
         self._cpss_apply_field_attributes(
             node, model_name, node.tag, restrictions)
 
+    # -------------------------------------------------------------------------
+    # ARCH HELPERS
+    # -------------------------------------------------------------------------
+
+    @api.model
+    def _cpss_set_modifier(self, node, name, value=True):
+        """Set a modifier on an already postprocessed node.
+
+        ``get_view`` returns the arch *after* Odoo turned ``attrs`` and the
+        static ``invisible`` / ``readonly`` / ``required`` attributes into the
+        ``modifiers`` JSON blob the web client actually reads. Setting only
+        the plain attribute at this stage would have no effect, so the blob is
+        edited — the attribute is kept in sync for readability and for any
+        code re-parsing the arch.
+        """
+        try:
+            modifiers = json.loads(node.get('modifiers') or '{}')
+        except ValueError:
+            modifiers = {}
+        modifiers[name] = value
+        node.set('modifiers', json.dumps(modifiers))
+        if value is True:
+            node.set(name, '1')
+
     @api.model
     def _cpss_apply_element_rules(self, node, element_rules):
         """Hide the restricted buttons, notebook pages and named links.
@@ -182,11 +218,18 @@ class Base(models.AbstractModel):
                         element_type == 'page'
                         and not element.get('name')
                         and element.get('string') in names):
-                    element.set('invisible', '1')
+                    self._cpss_set_modifier(element, 'invisible')
 
     @api.model
     def _cpss_remove_chatter(self, node):
-        for chatter in node.findall('.//chatter'):
+        """Remove the chatter block from a form arch.
+
+        Odoo 16 has no ``<chatter>`` tag: the chatter is the ``div.oe_chatter``
+        sitting after the sheet.
+        """
+        for chatter in node.xpath(
+                ".//div[contains(concat(' ', normalize-space(@class), ' '),"
+                " ' oe_chatter ')]"):
             chatter.getparent().remove(chatter)
 
     @api.model
@@ -228,7 +271,7 @@ class Base(models.AbstractModel):
         instead of blindly reusing the ones of the parent model.
         """
         field_restrictions = restrictions['fields'].get(model_name, {})
-        model = self.env.get(model_name)
+        model = self.env[model_name] if model_name in self.env else None
         # Materialised: a hidden search field is removed from its parent.
         for child in list(node):
             if child.tag != 'field':
@@ -255,14 +298,14 @@ class Base(models.AbstractModel):
                 # user could still filter on a hidden field.
                 node.getparent().remove(node)
                 return
-            node.set('invisible', '1')
-            if view_type == 'list':
-                node.set('column_invisible', '1')
+            self._cpss_set_modifier(node, 'invisible')
+            if view_type == 'tree':
+                self._cpss_set_modifier(node, 'column_invisible')
             return
         if 'readonly' in attributes:
-            node.set('readonly', '1')
+            self._cpss_set_modifier(node, 'readonly')
         if 'required' in attributes:
-            node.set('required', '1')
+            self._cpss_set_modifier(node, 'required')
         if 'no_open' in attributes:
             node.set('options', json.dumps(
                 {**self._cpss_node_options(node), 'no_open': True}))

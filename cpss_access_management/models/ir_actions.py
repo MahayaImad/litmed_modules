@@ -52,8 +52,10 @@ class IrActionsReport(models.Model):
             if report.id in restrictions['reports']:
                 raise AccessError(_(
                     "Your access profile does not allow you to print the "
-                    "report %(report)s.", report=report.display_name))
+                    "report %(report)s."
+                ) % {'report': report.display_name})
             if resolver._is_operation_forbidden(report.model, 'print'):
                 raise AccessError(_(
                     "Your access profile does not allow you to print the "
-                    "reports of type %(model)s.", model=report.model))
+                    "reports of type %(model)s."
+                ) % {'model': report.model})

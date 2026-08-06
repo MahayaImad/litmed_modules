@@ -26,7 +26,7 @@ class CpssAccessMenuRule(models.Model):
         default=True,
         help="Also hide every menu located under this one.")
 
-    _menu_target_uniq = models.Constraint(
-        'unique(menu_id, profile_id, user_id)',
-        "This menu is already hidden for this profile or user.",
-    )
+    _sql_constraints = [
+        ('menu_target_uniq', 'unique(menu_id, profile_id, user_id)',
+         "This menu is already hidden for this profile or user."),
+    ]

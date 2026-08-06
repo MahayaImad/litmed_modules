@@ -24,7 +24,7 @@ class CpssAccessReportRule(models.Model):
     model_name = fields.Char(
         related='report_id.model', store=True, index=True, string="Model Name")
 
-    _report_target_uniq = models.Constraint(
-        'unique(report_id, profile_id, user_id)',
-        "This report is already restricted for this profile or user.",
-    )
+    _sql_constraints = [
+        ('report_target_uniq', 'unique(report_id, profile_id, user_id)',
+         "This report is already restricted for this profile or user."),
+    ]

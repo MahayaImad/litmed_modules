@@ -56,5 +56,5 @@ class CpssAccessDomainRule(models.Model):
                 self.env[rule.model_name]._search(domain, limit=1)
             except Exception as error:
                 raise ValidationError(_(
-                    "Invalid domain for model %(model)s: %(error)s",
-                    model=rule.model_name, error=error)) from error
+                    "Invalid domain for model %(model)s: %(error)s"
+                ) % {'model': rule.model_name, 'error': error}) from error
