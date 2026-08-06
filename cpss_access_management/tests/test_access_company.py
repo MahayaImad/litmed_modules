@@ -202,3 +202,82 @@ class TestActiveCompanyResolution(TransactionCase):
     def test_03_cookie_is_ignored_outside_a_request(self):
         self.assertIsNone(
             self.env['cpss.access.resolver']._get_company_id_from_cookie())
+
+
+@tagged('post_install', '-at_install')
+class TestMenuHiding(TransactionCase):
+    """Le filtrage des menus ne doit fuir sur aucun des deux caches d'Odoo."""
+
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        groupe = cls.env.ref('base.group_user')
+        cls.restreint = cls.env['res.users'].create({
+            'name': "Menu restreint", 'login': 'menu_restreint',
+            'groups_id': [Command.set(groupe.ids)],
+        })
+        cls.libre = cls.env['res.users'].create({
+            'name': "Menu libre", 'login': 'menu_libre',
+            'groups_id': [Command.set(groupe.ids)],
+        })
+        cls.application = cls.env['ir.ui.menu'].create({'name': "App CPSS"})
+        cls.section = cls.env['ir.ui.menu'].create({
+            'name': "Section", 'parent_id': cls.application.id,
+        })
+        action = cls.env['ir.actions.act_window'].create({
+            'name': "Feuille", 'res_model': 'res.partner',
+            'view_mode': 'tree,form',
+        })
+        cls.feuille = cls.env['ir.ui.menu'].create({
+            'name': "Feuille", 'parent_id': cls.section.id,
+            'action': '%s,%s' % (action._name, action.id),
+        })
+
+    def setUp(self):
+        super().setUp()
+        self.env.registry.clear_caches()
+        self.addCleanup(self.env.registry.clear_caches)
+
+    def _menus(self, user):
+        return self.env['ir.ui.menu'].with_user(user).load_menus(False)
+
+    def test_01_hidden_menu_is_absent(self):
+        self.env['cpss.access.menu.rule'].create({
+            'user_id': self.restreint.id, 'menu_id': self.feuille.id,
+        })
+        self.assertNotIn(self.feuille.id, self._menus(self.restreint))
+
+    def test_02_emptied_branch_is_pruned(self):
+        """Masquer la seule feuille doit emporter la section et l'application.
+
+        Sans cet élagage, l'application resterait visible et n'ouvrirait rien.
+        """
+        self.env['cpss.access.menu.rule'].create({
+            'user_id': self.restreint.id, 'menu_id': self.feuille.id,
+        })
+        menus = self._menus(self.restreint)
+        self.assertNotIn(self.section.id, menus)
+        self.assertNotIn(self.application.id, menus)
+        self.assertNotIn(self.application.id, menus['root']['children'])
+
+    def test_03_restriction_does_not_leak_to_other_users(self):
+        """Le cache de load_menus est indexé sur les groupes, pas l'utilisateur.
+
+        L'utilisateur restreint charge ses menus en premier : son voisin, de
+        mêmes groupes, doit malgré tout conserver les siens.
+        """
+        self.env['cpss.access.menu.rule'].create({
+            'user_id': self.restreint.id, 'menu_id': self.feuille.id,
+        })
+        self.assertNotIn(self.feuille.id, self._menus(self.restreint))
+        self.assertIn(self.feuille.id, self._menus(self.libre),
+                      "la restriction d'un utilisateur ne doit pas être "
+                      "servie depuis le cache à un autre")
+
+    def test_04_cached_dictionary_is_never_mutated(self):
+        self.env['cpss.access.menu.rule'].create({
+            'user_id': self.restreint.id, 'menu_id': self.feuille.id,
+        })
+        self._menus(self.restreint)
+        menus_libre = self._menus(self.libre)
+        self.assertIn(self.application.id, menus_libre['root']['children'])
