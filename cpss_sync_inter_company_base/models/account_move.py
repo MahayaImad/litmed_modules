@@ -527,57 +527,77 @@ class AccountMove(models.Model):
     # ---------------------------------------------------------
     # MAPPINGS ET DIAGNOSTICS
     # ---------------------------------------------------------
-    def _mapper_taxes_vers_societe_cible(self, taxes_orig, config):
-        """Taxes équivalentes dans la société cible.
+    # Attributs qui doivent être rigoureusement identiques entre la taxe
+    # d'origine et la taxe de la société cible.
+    CRITERES_TAXE = ('name', 'amount', 'amount_type', 'type_tax_use', 'price_include')
 
-        Une taxe sans correspondance certaine n'est jamais ignorée
-        silencieusement : sur un module de conformité fiscale, une facture
-        cible sans TVA ou avec la mauvaise TVA est pire qu'une erreur.
+    def _mapper_taxes_vers_societe_cible(self, taxes_orig, config):
+        """Taxes équivalentes dans la société cible : correspondance exacte.
+
+        Aucune heuristique, aucun repli : la taxe cible doit être identique à
+        la taxe d'origine sur tous les critères de `CRITERES_TAXE`. À défaut,
+        la synchronisation s'arrête. Sur un module de conformité fiscale, une
+        facture cible portant une TVA approchante est plus dangereuse qu'une
+        erreur visible.
         """
         Tax = self.env['account.tax'].sudo()
         resultat = Tax
         for taxe in taxes_orig:
-            domaine = [
-                ('company_id', '=', config.societe_cible_id.id),
-                ('type_tax_use', '=', taxe.type_tax_use),
-                ('amount_type', '=', taxe.amount_type),
-            ]
-            # Stratégie 1 : nom + montant (correspondance exacte)
-            correspondance = Tax.search(
-                domaine + [('name', '=', taxe.name), ('amount', '=', taxe.amount)],
-                limit=1)
-
-            # Stratégie 2 : montant seul, à condition que le résultat soit unique
-            if not correspondance:
-                candidates = Tax.search(domaine + [('amount', '=', taxe.amount)])
-                if len(candidates) == 1:
-                    correspondance = candidates
-                elif len(candidates) > 1:
-                    raise UserError(_(
-                        "La taxe « %(taxe)s » (%(montant)s) correspond à "
-                        "plusieurs taxes de la société %(societe)s : %(liste)s.\n\n"
-                        "Renommez la taxe cible à l'identique pour lever "
-                        "l'ambiguïté."
-                    ) % {
-                        'taxe': taxe.name,
-                        'montant': taxe.amount,
-                        'societe': config.societe_cible_id.name,
-                        'liste': ", ".join(candidates.mapped('name')),
-                    })
-
-            if not correspondance:
-                raise UserError(_(
-                    "Aucune taxe équivalente à « %(taxe)s » (%(montant)s, "
-                    "%(usage)s) dans la société %(societe)s.\n\n"
-                    "Créez la taxe correspondante avant de synchroniser."
-                ) % {
-                    'taxe': taxe.name,
-                    'montant': taxe.amount,
-                    'usage': taxe.type_tax_use,
-                    'societe': config.societe_cible_id.name,
-                })
-            resultat |= correspondance
+            correspondances = Tax.search(
+                [('company_id', '=', config.societe_cible_id.id)]
+                + [(critere, '=', taxe[critere]) for critere in self.CRITERES_TAXE]
+            )
+            if len(correspondances) != 1:
+                raise UserError(self._message_taxe_non_appariee(taxe, correspondances, config))
+            resultat |= correspondances
         return resultat
+
+    def _decrire_taxe(self, taxe):
+        return _("%(nom)s — montant %(montant)s, %(calcul)s, %(usage)s, %(mode)s") % {
+            'nom': taxe.name,
+            'montant': taxe.amount,
+            'calcul': taxe.amount_type,
+            'usage': taxe.type_tax_use,
+            'mode': _("TTC") if taxe.price_include else _("HT"),
+        }
+
+    def _message_taxe_non_appariee(self, taxe, correspondances, config):
+        """Message d'erreur détaillant ce qui empêche l'appariement."""
+        if len(correspondances) > 1:
+            entete = _(
+                "Plusieurs taxes de la société %(societe)s sont strictement "
+                "identiques à « %(taxe)s » : l'appariement est impossible.\n"
+                "Supprimez ou différenciez le doublon dans la société cible."
+            ) % {'societe': config.societe_cible_id.name, 'taxe': taxe.name}
+            return "%s\n\n%s" % (entete, "\n".join(
+                "• %s" % self._decrire_taxe(t) for t in correspondances))
+
+        lignes = [
+            _("La taxe « %(taxe)s » n'a pas d'équivalent exact dans la société "
+              "%(societe)s.") % {'taxe': taxe.name,
+                                 'societe': config.societe_cible_id.name},
+            "",
+            _("La taxe de la société cible doit être identique sur : nom, "
+              "montant, type de calcul, usage et mode HT/TTC."),
+            _("Attendu : %s") % self._decrire_taxe(taxe),
+        ]
+
+        # Taxes de même montant : ce sont les candidates à renommer.
+        proches = self.env['account.tax'].sudo().search([
+            ('company_id', '=', config.societe_cible_id.id),
+            ('amount', '=', taxe.amount),
+            ('type_tax_use', '=', taxe.type_tax_use),
+        ], limit=10)
+        if proches:
+            lignes.append("")
+            lignes.append(_("Taxes de même montant présentes dans %s :")
+                          % config.societe_cible_id.name)
+            lignes.extend("• %s" % self._decrire_taxe(t) for t in proches)
+        else:
+            lignes.append("")
+            lignes.append(_("Aucune taxe de ce montant dans la société cible : "
+                            "elle doit être créée."))
+        return "\n".join(lignes)
 
     def _mapper_compte_vers_societe_cible(self, compte_orig, config):
         """Compte équivalent dans la société cible.

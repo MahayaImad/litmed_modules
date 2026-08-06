@@ -34,9 +34,15 @@ cible (paiement non lettré, à rapprocher manuellement).
 Les comptes et les taxes ne sont **pas** partagés entre sociétés : ils restent
 propres à chacune et sont mis en correspondance à la volée.
 
-- **Taxes** : nom + montant + type d'usage ; à défaut, montant + type d'usage
-  *si le résultat est unique*. Toute ambiguïté ou absence de correspondance
-  interrompt la synchronisation.
+- **Taxes** : correspondance **exacte, sans repli**. La taxe de la société
+  cible doit être identique sur le nom, le montant, le type de calcul,
+  l'usage (vente/achat) et le mode HT/TTC. Aucune heuristique : si la taxe
+  exacte n'existe pas, la synchronisation s'arrête et le message d'erreur
+  liste les taxes de même montant présentes dans la société cible.
+
+  Cela suppose de nommer les taxes à l'identique dans les deux sociétés.
+  C'est un choix assumé : il rend le rapprochement vérifiable et supprime
+  tout risque qu'une facture cible porte une TVA approchante.
 - **Comptes** : code identique ; à défaut, code normalisé sur 6/5/4 caractères
   (ex. `700` → `700000`). Sans correspondance, la synchronisation échoue avec
   un diagnostic.
