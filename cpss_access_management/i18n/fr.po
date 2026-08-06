@@ -1,0 +1,426 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# 	* cpss_access_management
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 19.0\n"
+"Report-Msgid-Bugs-To: \n"
+"Last-Translator: \n"
+"Language-Team: French\n"
+"Language: fr\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+
+#. module: cpss_access_management
+#: model:ir.module.category,name:cpss_access_management.module_category_cpss_access_management
+#: model:ir.ui.menu,name:cpss_access_management.menu_cpss_access_management_root
+#: model:res.groups.privilege,name:cpss_access_management.res_groups_privilege_access_management
+#: model_terms:ir.ui.view,arch_db:cpss_access_management.view_users_form_access_management
+msgid "Access Management"
+msgstr "Gestion des accès"
+
+#. module: cpss_access_management
+#: model:res.groups,name:cpss_access_management.group_access_manager
+msgid "Access Manager"
+msgstr "Gestionnaire des accès"
+
+#. module: cpss_access_management
+#: model:ir.model,name:cpss_access_management.model_cpss_access_profile
+msgid "Access Profile"
+msgstr "Profil d'accès"
+
+#. module: cpss_access_management
+#: model:ir.actions.act_window,name:cpss_access_management.action_access_profile
+#: model:ir.ui.menu,name:cpss_access_management.menu_access_profiles
+#: model:ir.model.fields,field_description:cpss_access_management.field_res_users__access_profile_ids
+msgid "Access Profiles"
+msgstr "Profils d'accès"
+
+#. module: cpss_access_management
+#: model:ir.model,name:cpss_access_management.model_cpss_access_rule_mixin
+msgid "Access Rule Mixin"
+msgstr "Mixin de règle d'accès"
+
+#. module: cpss_access_management
+#: model:ir.model,name:cpss_access_management.model_cpss_access_field_rule
+msgid "Access Rule: Field"
+msgstr "Règle d'accès : champ"
+
+#. module: cpss_access_management
+#: model:ir.model,name:cpss_access_management.model_cpss_access_menu_rule
+msgid "Access Rule: Menu"
+msgstr "Règle d'accès : menu"
+
+#. module: cpss_access_management
+#: model:ir.model,name:cpss_access_management.model_cpss_access_model_rule
+msgid "Access Rule: Model"
+msgstr "Règle d'accès : modèle"
+
+#. module: cpss_access_management
+#: model:ir.model,name:cpss_access_management.model_cpss_access_resolver
+msgid "Access Restriction Resolver"
+msgstr "Résolveur de restrictions d'accès"
+
+#. module: cpss_access_management
+#: model:ir.model.fields,field_description:cpss_access_management.field_cpss_access_field_rule__attribute
+msgid "Attribute"
+msgstr "Attribut"
+
+#. module: cpss_access_management
+#: model:ir.model.fields,field_description:cpss_access_management.field_cpss_access_field_rule__company_id
+#: model:ir.model.fields,field_description:cpss_access_management.field_cpss_access_menu_rule__company_id
+#: model:ir.model.fields,field_description:cpss_access_management.field_cpss_access_model_rule__company_id
+#: model:ir.model.fields,field_description:cpss_access_management.field_cpss_access_profile__company_id
+msgid "Company"
+msgstr "Société"
+
+#. module: cpss_access_management
+#: model:ir.model.fields,field_description:cpss_access_management.field_cpss_access_field_rule__field_id
+msgid "Field"
+msgstr "Champ"
+
+#. module: cpss_access_management
+#: model:ir.model.fields,field_description:cpss_access_management.field_res_users__access_field_rule_ids
+#: model:ir.actions.act_window,name:cpss_access_management.action_access_field_rule
+#: model_terms:ir.ui.view,arch_db:cpss_access_management.view_users_form_access_management
+msgid "Field Restrictions"
+msgstr "Restrictions de champs"
+
+#. module: cpss_access_management
+#: model:ir.model.fields,field_description:cpss_access_management.field_cpss_access_profile__field_rule_ids
+#: model_terms:ir.ui.view,arch_db:cpss_access_management.view_access_profile_form
+msgid "Fields"
+msgstr "Champs"
+
+#. module: cpss_access_management
+#: model:ir.model.fields,field_description:cpss_access_management.field_cpss_access_model_rule__disable_actions
+msgid "Forbid Actions"
+msgstr "Interdire les actions"
+
+#. module: cpss_access_management
+#: model:ir.model.fields,field_description:cpss_access_management.field_cpss_access_model_rule__disable_archive
+msgid "Forbid Archive"
+msgstr "Interdire l'archivage"
+
+#. module: cpss_access_management
+#: model:ir.model.fields,field_description:cpss_access_management.field_cpss_access_model_rule__disable_create
+msgid "Forbid Create"
+msgstr "Interdire la création"
+
+#. module: cpss_access_management
+#: model:ir.model.fields,field_description:cpss_access_management.field_cpss_access_model_rule__disable_delete
+msgid "Forbid Delete"
+msgstr "Interdire la suppression"
+
+#. module: cpss_access_management
+#: model:ir.model.fields,field_description:cpss_access_management.field_cpss_access_model_rule__disable_duplicate
+msgid "Forbid Duplicate"
+msgstr "Interdire la duplication"
+
+#. module: cpss_access_management
+#: model:ir.model.fields,field_description:cpss_access_management.field_cpss_access_model_rule__disable_edit
+msgid "Forbid Edit"
+msgstr "Interdire la modification"
+
+#. module: cpss_access_management
+#: model:ir.model.fields,field_description:cpss_access_management.field_cpss_access_model_rule__disable_export
+msgid "Forbid Export"
+msgstr "Interdire l'export"
+
+#. module: cpss_access_management
+#: model:ir.model.fields,field_description:cpss_access_management.field_cpss_access_model_rule__disable_print
+msgid "Forbid Print"
+msgstr "Interdire l'impression"
+
+#. module: cpss_access_management
+#: model:ir.model.fields,field_description:cpss_access_management.field_cpss_access_menu_rule__include_children
+msgid "Hide Sub-Menus"
+msgstr "Masquer les sous-menus"
+
+#. module: cpss_access_management
+#: model:ir.model.fields,field_description:cpss_access_management.field_cpss_access_profile__note
+msgid "Internal Note"
+msgstr "Note interne"
+
+#. module: cpss_access_management
+#: model:ir.model.fields.selection,name:cpss_access_management.selection__cpss_access_field_rule__attribute__invisible
+msgid "Invisible"
+msgstr "Invisible"
+
+#. module: cpss_access_management
+#: model:ir.model.fields,field_description:cpss_access_management.field_cpss_access_menu_rule__menu_id
+msgid "Menu"
+msgstr "Menu"
+
+#. module: cpss_access_management
+#: model:ir.actions.act_window,name:cpss_access_management.action_access_menu_rule
+#: model:ir.model.fields,field_description:cpss_access_management.field_res_users__access_menu_rule_ids
+#: model_terms:ir.ui.view,arch_db:cpss_access_management.view_users_form_access_management
+msgid "Menu Restrictions"
+msgstr "Restrictions de menus"
+
+#. module: cpss_access_management
+#: model:ir.model.fields,field_description:cpss_access_management.field_cpss_access_profile__menu_rule_ids
+#: model:ir.ui.menu,name:cpss_access_management.menu_access_menu_rules
+#: model_terms:ir.ui.view,arch_db:cpss_access_management.view_access_profile_form
+msgid "Menus"
+msgstr "Menus"
+
+#. module: cpss_access_management
+#: model:ir.model.fields,field_description:cpss_access_management.field_cpss_access_field_rule__model_id
+#: model:ir.model.fields,field_description:cpss_access_management.field_cpss_access_model_rule__model_id
+msgid "Model"
+msgstr "Modèle"
+
+#. module: cpss_access_management
+#: model:ir.actions.act_window,name:cpss_access_management.action_access_model_rule
+#: model:ir.model.fields,field_description:cpss_access_management.field_res_users__access_model_rule_ids
+#: model_terms:ir.ui.view,arch_db:cpss_access_management.view_users_form_access_management
+msgid "Model Restrictions"
+msgstr "Restrictions de modèles"
+
+#. module: cpss_access_management
+#: model:ir.model.fields,field_description:cpss_access_management.field_cpss_access_profile__model_rule_ids
+#: model:ir.ui.menu,name:cpss_access_management.menu_access_model_rules
+#: model_terms:ir.ui.view,arch_db:cpss_access_management.view_access_profile_form
+msgid "Models"
+msgstr "Modèles"
+
+#. module: cpss_access_management
+#: model:ir.model.fields.selection,name:cpss_access_management.selection__cpss_access_field_rule__attribute__no_open
+msgid "No External Link"
+msgstr "Pas de lien externe"
+
+#. module: cpss_access_management
+#: model:ir.model.fields.selection,name:cpss_access_management.selection__cpss_access_field_rule__attribute__readonly
+msgid "Read-only"
+msgstr "Lecture seule"
+
+#. module: cpss_access_management
+#: model:ir.model.fields.selection,name:cpss_access_management.selection__cpss_access_field_rule__attribute__required
+msgid "Required"
+msgstr "Obligatoire"
+
+#. module: cpss_access_management
+#: model:ir.model.fields,field_description:cpss_access_management.field_res_users__access_restriction_count
+#: model:ir.ui.menu,name:cpss_access_management.menu_access_restrictions
+msgid "Restrictions"
+msgstr "Restrictions"
+
+#. module: cpss_access_management
+#: model:ir.model.fields,field_description:cpss_access_management.field_cpss_access_field_rule__user_id
+#: model:ir.model.fields,field_description:cpss_access_management.field_cpss_access_menu_rule__user_id
+#: model:ir.model.fields,field_description:cpss_access_management.field_cpss_access_model_rule__user_id
+msgid "User"
+msgstr "Utilisateur"
+
+#. module: cpss_access_management
+#: model:ir.actions.act_window,name:cpss_access_management.action_access_users
+#: model:ir.model.fields,field_description:cpss_access_management.field_cpss_access_profile__user_ids
+#: model:ir.ui.menu,name:cpss_access_management.menu_access_users
+#: model_terms:ir.ui.view,arch_db:cpss_access_management.view_access_profile_form
+msgid "Users"
+msgstr "Utilisateurs"
+
+#. module: cpss_access_management
+#: code:addons/cpss_access_management/models/access_field_rule.py:0
+msgid ""
+"Field %(field)s cannot be required and invisible at the same time: the "
+"records could no longer be saved."
+msgstr ""
+"Le champ %(field)s ne peut pas être obligatoire et invisible en même temps : "
+"les enregistrements ne pourraient plus être sauvegardés."
+
+#. module: cpss_access_management
+#: code:addons/cpss_access_management/models/access_rule_mixin.py:0
+msgid ""
+"An access rule must target either an access profile or a user, not both and "
+"not neither."
+msgstr ""
+"Une règle d'accès doit cibler soit un profil d'accès, soit un utilisateur, "
+"ni les deux, ni aucun."
+
+#. module: cpss_access_management
+#: code:addons/cpss_access_management/models/base_access.py:0
+msgid ""
+"Your access profile does not allow you to %(operation)s records of type "
+"%(model)s."
+msgstr ""
+"Votre profil d'accès ne vous permet pas d'effectuer l'opération "
+"« %(operation)s » sur les enregistrements de type %(model)s."
+
+#. module: cpss_access_management
+#: code:addons/cpss_access_management/models/base_access.py:0
+msgid ""
+"Your access profile does not allow you to modify the following fields of "
+"%(model)s: %(fields)s."
+msgstr ""
+"Votre profil d'accès ne vous permet pas de modifier les champs suivants de "
+"%(model)s : %(fields)s."
+
+#. module: cpss_access_management
+#: code:addons/cpss_access_management/models/ir_actions.py:0
+msgid ""
+"Your access profile does not allow you to print the reports of type "
+"%(model)s."
+msgstr ""
+"Votre profil d'accès ne vous permet pas d'imprimer les rapports de type "
+"%(model)s."
+
+#. module: cpss_access_management
+#: code:addons/cpss_access_management/models/base_access.py:0
+msgid "create"
+msgstr "créer"
+
+#. module: cpss_access_management
+#: code:addons/cpss_access_management/models/base_access.py:0
+msgid "modify"
+msgstr "modifier"
+
+#. module: cpss_access_management
+#: code:addons/cpss_access_management/models/base_access.py:0
+msgid "delete"
+msgstr "supprimer"
+
+#. module: cpss_access_management
+#: code:addons/cpss_access_management/models/base_access.py:0
+msgid "duplicate"
+msgstr "dupliquer"
+
+#. module: cpss_access_management
+#: code:addons/cpss_access_management/models/base_access.py:0
+msgid "export"
+msgstr "exporter"
+
+#. module: cpss_access_management
+#: code:addons/cpss_access_management/models/base_access.py:0
+msgid "archive"
+msgstr "archiver"
+
+#. module: cpss_access_management
+#: code:addons/cpss_access_management/models/base_access.py:0
+msgid "print"
+msgstr "imprimer"
+
+#. module: cpss_access_management
+msgid "Access Rule: Button"
+msgstr "Règle d'accès : bouton"
+
+#. module: cpss_access_management
+msgid "Access Rule: Report"
+msgstr "Règle d'accès : rapport"
+
+#. module: cpss_access_management
+msgid "Access Rule: Domain"
+msgstr "Règle d'accès : domaine"
+
+#. module: cpss_access_management
+msgid "Button"
+msgstr "Bouton"
+
+#. module: cpss_access_management
+msgid "Notebook Page"
+msgstr "Onglet"
+
+#. module: cpss_access_management
+msgid "Link"
+msgstr "Lien"
+
+#. module: cpss_access_management
+msgid "Element"
+msgstr "Élément"
+
+#. module: cpss_access_management
+msgid "Technical Name"
+msgstr "Nom technique"
+
+#. module: cpss_access_management
+msgid "Report"
+msgstr "Rapport"
+
+#. module: cpss_access_management
+msgid "Description"
+msgstr "Description"
+
+#. module: cpss_access_management
+msgid "Domain"
+msgstr "Domaine"
+
+#. module: cpss_access_management
+msgid "Read"
+msgstr "Lecture"
+
+#. module: cpss_access_management
+msgid "Write"
+msgstr "Écriture"
+
+#. module: cpss_access_management
+msgid "Create"
+msgstr "Création"
+
+#. module: cpss_access_management
+msgid "Delete"
+msgstr "Suppression"
+
+#. module: cpss_access_management
+msgid "Hide Chatter"
+msgstr "Masquer le chatter"
+
+#. module: cpss_access_management
+msgid "Hide Chatter Everywhere"
+msgstr "Masquer le chatter partout"
+
+#. module: cpss_access_management
+msgid "Hide Filters"
+msgstr "Masquer les filtres"
+
+#. module: cpss_access_management
+msgid "Hide Group By"
+msgstr "Masquer les regroupements"
+
+#. module: cpss_access_management
+msgid "Button Restrictions"
+msgstr "Restrictions de boutons"
+
+#. module: cpss_access_management
+msgid "Report Restrictions"
+msgstr "Restrictions de rapports"
+
+#. module: cpss_access_management
+msgid "Domain Restrictions"
+msgstr "Restrictions de domaines"
+
+#. module: cpss_access_management
+msgid "Buttons & Tabs"
+msgstr "Boutons et onglets"
+
+#. module: cpss_access_management
+msgid "Reports"
+msgstr "Rapports"
+
+#. module: cpss_access_management
+msgid "Domains"
+msgstr "Domaines"
+
+#. module: cpss_access_management
+msgid "Model Name"
+msgstr "Nom du modèle"
+
+#. module: cpss_access_management
+msgid "Users Count"
+msgstr "Nombre d'utilisateurs"
+
+#. module: cpss_access_management
+msgid "Invalid domain for model %(model)s: %(error)s"
+msgstr "Domaine invalide pour le modèle %(model)s : %(error)s"
+
+#. module: cpss_access_management
+msgid "Your access profile does not allow you to use this button."
+msgstr "Votre profil d'accès ne vous permet pas d'utiliser ce bouton."
+
+#. module: cpss_access_management
+msgid "Your access profile does not allow you to print the report %(report)s."
+msgstr "Votre profil d'accès ne vous permet pas d'imprimer le rapport %(report)s."

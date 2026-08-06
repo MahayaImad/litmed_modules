@@ -1,0 +1,292 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- ================= Menu rules ================= -->
+
+    <record id="view_access_menu_rule_list" model="ir.ui.view">
+        <field name="name">cpss.access.menu.rule.list</field>
+        <field name="model">cpss.access.menu.rule</field>
+        <field name="arch" type="xml">
+            <list editable="bottom">
+                <field name="menu_id" options="{'no_create': True}"/>
+                <field name="include_children"/>
+                <field name="profile_id" optional="hide"/>
+                <field name="user_id" optional="hide"/>
+                <field name="company_id" groups="base.group_multi_company" optional="hide"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_access_menu_rule_search" model="ir.ui.view">
+        <field name="name">cpss.access.menu.rule.search</field>
+        <field name="model">cpss.access.menu.rule</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="menu_id"/>
+                <field name="profile_id"/>
+                <field name="user_id"/>
+                <filter string="Profile Rules" name="profile_rules" domain="[('profile_id', '!=', False)]"/>
+                <filter string="User Rules" name="user_rules" domain="[('user_id', '!=', False)]"/>
+                <group name="group_by">
+                    <filter string="Profile" name="group_profile" context="{'group_by': 'profile_id'}"/>
+                    <filter string="User" name="group_user" context="{'group_by': 'user_id'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_access_menu_rule" model="ir.actions.act_window">
+        <field name="name">Menu Restrictions</field>
+        <field name="res_model">cpss.access.menu.rule</field>
+        <field name="view_mode">list</field>
+    </record>
+
+    <!-- ================= Model rules ================= -->
+
+    <record id="view_access_model_rule_list" model="ir.ui.view">
+        <field name="name">cpss.access.model.rule.list</field>
+        <field name="model">cpss.access.model.rule</field>
+        <field name="arch" type="xml">
+            <list editable="bottom">
+                <field name="model_id" options="{'no_create': True}"/>
+                <field name="disable_create"/>
+                <field name="disable_edit"/>
+                <field name="disable_delete"/>
+                <field name="disable_duplicate"/>
+                <field name="disable_export"/>
+                <field name="disable_archive"/>
+                <field name="disable_actions" optional="show"/>
+                <field name="disable_print" optional="show"/>
+                <field name="profile_id" optional="hide"/>
+                <field name="user_id" optional="hide"/>
+                <field name="company_id" groups="base.group_multi_company" optional="hide"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_access_model_rule_search" model="ir.ui.view">
+        <field name="name">cpss.access.model.rule.search</field>
+        <field name="model">cpss.access.model.rule</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="model_id"/>
+                <field name="profile_id"/>
+                <field name="user_id"/>
+                <filter string="Profile Rules" name="profile_rules" domain="[('profile_id', '!=', False)]"/>
+                <filter string="User Rules" name="user_rules" domain="[('user_id', '!=', False)]"/>
+                <group name="group_by">
+                    <filter string="Model" name="group_model" context="{'group_by': 'model_id'}"/>
+                    <filter string="Profile" name="group_profile" context="{'group_by': 'profile_id'}"/>
+                    <filter string="User" name="group_user" context="{'group_by': 'user_id'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_access_model_rule" model="ir.actions.act_window">
+        <field name="name">Model Restrictions</field>
+        <field name="res_model">cpss.access.model.rule</field>
+        <field name="view_mode">list</field>
+    </record>
+
+    <!-- ================= Field rules ================= -->
+
+    <record id="view_access_field_rule_list" model="ir.ui.view">
+        <field name="name">cpss.access.field.rule.list</field>
+        <field name="model">cpss.access.field.rule</field>
+        <field name="arch" type="xml">
+            <list editable="bottom">
+                <field name="model_id" options="{'no_create': True}"/>
+                <field name="field_id" options="{'no_create': True}"/>
+                <field name="attribute"/>
+                <field name="profile_id" optional="hide"/>
+                <field name="user_id" optional="hide"/>
+                <field name="company_id" groups="base.group_multi_company" optional="hide"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_access_field_rule_search" model="ir.ui.view">
+        <field name="name">cpss.access.field.rule.search</field>
+        <field name="model">cpss.access.field.rule</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="model_id"/>
+                <field name="field_id"/>
+                <field name="profile_id"/>
+                <field name="user_id"/>
+                <filter string="Profile Rules" name="profile_rules" domain="[('profile_id', '!=', False)]"/>
+                <filter string="User Rules" name="user_rules" domain="[('user_id', '!=', False)]"/>
+                <group name="group_by">
+                    <filter string="Model" name="group_model" context="{'group_by': 'model_id'}"/>
+                    <filter string="Attribute" name="group_attribute" context="{'group_by': 'attribute'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_access_field_rule" model="ir.actions.act_window">
+        <field name="name">Field Restrictions</field>
+        <field name="res_model">cpss.access.field.rule</field>
+        <field name="view_mode">list</field>
+    </record>
+
+    <!-- ================= Button rules ================= -->
+
+    <record id="view_access_button_rule_list" model="ir.ui.view">
+        <field name="name">cpss.access.button.rule.list</field>
+        <field name="model">cpss.access.button.rule</field>
+        <field name="arch" type="xml">
+            <list editable="bottom">
+                <field name="model_id" options="{'no_create': True}"/>
+                <field name="element_type"/>
+                <field name="element_name"/>
+                <field name="profile_id" optional="hide"/>
+                <field name="user_id" optional="hide"/>
+                <field name="company_id" groups="base.group_multi_company" optional="hide"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_access_button_rule_search" model="ir.ui.view">
+        <field name="name">cpss.access.button.rule.search</field>
+        <field name="model">cpss.access.button.rule</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="model_id"/>
+                <field name="element_name"/>
+                <field name="profile_id"/>
+                <field name="user_id"/>
+                <filter string="Profile Rules" name="profile_rules" domain="[('profile_id', '!=', False)]"/>
+                <filter string="User Rules" name="user_rules" domain="[('user_id', '!=', False)]"/>
+                <group name="group_by">
+                    <filter string="Model" name="group_model" context="{'group_by': 'model_id'}"/>
+                    <filter string="Element" name="group_element" context="{'group_by': 'element_type'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_access_button_rule" model="ir.actions.act_window">
+        <field name="name">Button Restrictions</field>
+        <field name="res_model">cpss.access.button.rule</field>
+        <field name="view_mode">list</field>
+    </record>
+
+    <!-- ================= Report rules ================= -->
+
+    <record id="view_access_report_rule_list" model="ir.ui.view">
+        <field name="name">cpss.access.report.rule.list</field>
+        <field name="model">cpss.access.report.rule</field>
+        <field name="arch" type="xml">
+            <list editable="bottom">
+                <field name="report_id" options="{'no_create': True}"/>
+                <field name="model_name"/>
+                <field name="profile_id" optional="hide"/>
+                <field name="user_id" optional="hide"/>
+                <field name="company_id" groups="base.group_multi_company" optional="hide"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_access_report_rule_search" model="ir.ui.view">
+        <field name="name">cpss.access.report.rule.search</field>
+        <field name="model">cpss.access.report.rule</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="report_id"/>
+                <field name="profile_id"/>
+                <field name="user_id"/>
+                <filter string="Profile Rules" name="profile_rules" domain="[('profile_id', '!=', False)]"/>
+                <filter string="User Rules" name="user_rules" domain="[('user_id', '!=', False)]"/>
+                <group name="group_by">
+                    <filter string="Model" name="group_model" context="{'group_by': 'model_name'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_access_report_rule" model="ir.actions.act_window">
+        <field name="name">Report Restrictions</field>
+        <field name="res_model">cpss.access.report.rule</field>
+        <field name="view_mode">list</field>
+    </record>
+
+    <!-- ================= Domain rules ================= -->
+
+    <record id="view_access_domain_rule_list" model="ir.ui.view">
+        <field name="name">cpss.access.domain.rule.list</field>
+        <field name="model">cpss.access.domain.rule</field>
+        <field name="arch" type="xml">
+            <list>
+                <field name="name"/>
+                <field name="model_id" options="{'no_create': True}"/>
+                <field name="domain" widget="domain" options="{'model': 'model_name'}"/>
+                <field name="perm_read"/>
+                <field name="perm_write"/>
+                <field name="perm_create"/>
+                <field name="perm_unlink"/>
+                <field name="model_name" column_invisible="1"/>
+                <field name="profile_id" optional="hide"/>
+                <field name="user_id" optional="hide"/>
+                <field name="company_id" groups="base.group_multi_company" optional="hide"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_access_domain_rule_form" model="ir.ui.view">
+        <field name="name">cpss.access.domain.rule.form</field>
+        <field name="model">cpss.access.domain.rule</field>
+        <field name="arch" type="xml">
+            <form>
+                <sheet>
+                    <div class="oe_title">
+                        <h1><field name="name" placeholder="e.g. Own team orders only"/></h1>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="model_id" options="{'no_create': True}"/>
+                            <field name="model_name" invisible="1"/>
+                            <field name="profile_id"/>
+                            <field name="user_id"/>
+                            <field name="company_id" groups="base.group_multi_company"/>
+                        </group>
+                        <group>
+                            <field name="perm_read"/>
+                            <field name="perm_write"/>
+                            <field name="perm_create"/>
+                            <field name="perm_unlink"/>
+                        </group>
+                    </group>
+                    <separator string="Domain"/>
+                    <field name="domain" widget="domain" options="{'model': 'model_name'}" nolabel="1"/>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_access_domain_rule_search" model="ir.ui.view">
+        <field name="name">cpss.access.domain.rule.search</field>
+        <field name="model">cpss.access.domain.rule</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="name"/>
+                <field name="model_id"/>
+                <field name="profile_id"/>
+                <field name="user_id"/>
+                <filter string="Profile Rules" name="profile_rules" domain="[('profile_id', '!=', False)]"/>
+                <filter string="User Rules" name="user_rules" domain="[('user_id', '!=', False)]"/>
+                <group name="group_by">
+                    <filter string="Model" name="group_model" context="{'group_by': 'model_id'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_access_domain_rule" model="ir.actions.act_window">
+        <field name="name">Domain Restrictions</field>
+        <field name="res_model">cpss.access.domain.rule</field>
+        <field name="view_mode">list,form</field>
+    </record>
+
+</odoo>

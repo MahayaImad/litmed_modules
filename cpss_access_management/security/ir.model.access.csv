@@ -1,0 +1,8 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_access_profile_manager,cpss.access.profile manager,model_cpss_access_profile,group_access_manager,1,1,1,1
+access_access_menu_rule_manager,cpss.access.menu.rule manager,model_cpss_access_menu_rule,group_access_manager,1,1,1,1
+access_access_model_rule_manager,cpss.access.model.rule manager,model_cpss_access_model_rule,group_access_manager,1,1,1,1
+access_access_field_rule_manager,cpss.access.field.rule manager,model_cpss_access_field_rule,group_access_manager,1,1,1,1
+access_access_button_rule_manager,cpss.access.button.rule manager,model_cpss_access_button_rule,group_access_manager,1,1,1,1
+access_access_report_rule_manager,cpss.access.report.rule manager,model_cpss_access_report_rule,group_access_manager,1,1,1,1
+access_access_domain_rule_manager,cpss.access.domain.rule manager,model_cpss_access_domain_rule,group_access_manager,1,1,1,1

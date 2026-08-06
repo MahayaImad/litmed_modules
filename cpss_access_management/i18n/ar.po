@@ -1,0 +1,411 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# 	* cpss_access_management
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 19.0\n"
+"Report-Msgid-Bugs-To: \n"
+"Last-Translator: \n"
+"Language-Team: Arabic\n"
+"Language: ar\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=6; plural=(n==0 ? 0 : n==1 ? 1 : n==2 ? 2 : n%100>=3 && n%100<=10 ? 3 : n%100>=11 ? 4 : 5);\n"
+
+#. module: cpss_access_management
+#: model:ir.module.category,name:cpss_access_management.module_category_cpss_access_management
+#: model:ir.ui.menu,name:cpss_access_management.menu_cpss_access_management_root
+#: model:res.groups.privilege,name:cpss_access_management.res_groups_privilege_access_management
+#: model_terms:ir.ui.view,arch_db:cpss_access_management.view_users_form_access_management
+msgid "Access Management"
+msgstr "إدارة الصلاحيات"
+
+#. module: cpss_access_management
+#: model:res.groups,name:cpss_access_management.group_access_manager
+msgid "Access Manager"
+msgstr "مدير الصلاحيات"
+
+#. module: cpss_access_management
+#: model:ir.model,name:cpss_access_management.model_cpss_access_profile
+msgid "Access Profile"
+msgstr "ملف الصلاحيات"
+
+#. module: cpss_access_management
+#: model:ir.actions.act_window,name:cpss_access_management.action_access_profile
+#: model:ir.ui.menu,name:cpss_access_management.menu_access_profiles
+#: model:ir.model.fields,field_description:cpss_access_management.field_res_users__access_profile_ids
+msgid "Access Profiles"
+msgstr "ملفات الصلاحيات"
+
+#. module: cpss_access_management
+#: model:ir.model,name:cpss_access_management.model_cpss_access_rule_mixin
+msgid "Access Rule Mixin"
+msgstr "أساس قاعدة الصلاحيات"
+
+#. module: cpss_access_management
+#: model:ir.model,name:cpss_access_management.model_cpss_access_field_rule
+msgid "Access Rule: Field"
+msgstr "قاعدة صلاحيات: حقل"
+
+#. module: cpss_access_management
+#: model:ir.model,name:cpss_access_management.model_cpss_access_menu_rule
+msgid "Access Rule: Menu"
+msgstr "قاعدة صلاحيات: قائمة"
+
+#. module: cpss_access_management
+#: model:ir.model,name:cpss_access_management.model_cpss_access_model_rule
+msgid "Access Rule: Model"
+msgstr "قاعدة صلاحيات: نموذج"
+
+#. module: cpss_access_management
+#: model:ir.model,name:cpss_access_management.model_cpss_access_resolver
+msgid "Access Restriction Resolver"
+msgstr "محلل قيود الصلاحيات"
+
+#. module: cpss_access_management
+#: model:ir.model.fields,field_description:cpss_access_management.field_cpss_access_field_rule__attribute
+msgid "Attribute"
+msgstr "الخاصية"
+
+#. module: cpss_access_management
+#: model:ir.model.fields,field_description:cpss_access_management.field_cpss_access_field_rule__company_id
+#: model:ir.model.fields,field_description:cpss_access_management.field_cpss_access_menu_rule__company_id
+#: model:ir.model.fields,field_description:cpss_access_management.field_cpss_access_model_rule__company_id
+#: model:ir.model.fields,field_description:cpss_access_management.field_cpss_access_profile__company_id
+msgid "Company"
+msgstr "الشركة"
+
+#. module: cpss_access_management
+#: model:ir.model.fields,field_description:cpss_access_management.field_cpss_access_field_rule__field_id
+msgid "Field"
+msgstr "الحقل"
+
+#. module: cpss_access_management
+#: model:ir.model.fields,field_description:cpss_access_management.field_res_users__access_field_rule_ids
+#: model:ir.actions.act_window,name:cpss_access_management.action_access_field_rule
+#: model_terms:ir.ui.view,arch_db:cpss_access_management.view_users_form_access_management
+msgid "Field Restrictions"
+msgstr "قيود الحقول"
+
+#. module: cpss_access_management
+#: model:ir.model.fields,field_description:cpss_access_management.field_cpss_access_profile__field_rule_ids
+#: model_terms:ir.ui.view,arch_db:cpss_access_management.view_access_profile_form
+msgid "Fields"
+msgstr "الحقول"
+
+#. module: cpss_access_management
+#: model:ir.model.fields,field_description:cpss_access_management.field_cpss_access_model_rule__disable_actions
+msgid "Forbid Actions"
+msgstr "منع الإجراءات"
+
+#. module: cpss_access_management
+#: model:ir.model.fields,field_description:cpss_access_management.field_cpss_access_model_rule__disable_archive
+msgid "Forbid Archive"
+msgstr "منع الأرشفة"
+
+#. module: cpss_access_management
+#: model:ir.model.fields,field_description:cpss_access_management.field_cpss_access_model_rule__disable_create
+msgid "Forbid Create"
+msgstr "منع الإنشاء"
+
+#. module: cpss_access_management
+#: model:ir.model.fields,field_description:cpss_access_management.field_cpss_access_model_rule__disable_delete
+msgid "Forbid Delete"
+msgstr "منع الحذف"
+
+#. module: cpss_access_management
+#: model:ir.model.fields,field_description:cpss_access_management.field_cpss_access_model_rule__disable_duplicate
+msgid "Forbid Duplicate"
+msgstr "منع النسخ"
+
+#. module: cpss_access_management
+#: model:ir.model.fields,field_description:cpss_access_management.field_cpss_access_model_rule__disable_edit
+msgid "Forbid Edit"
+msgstr "منع التعديل"
+
+#. module: cpss_access_management
+#: model:ir.model.fields,field_description:cpss_access_management.field_cpss_access_model_rule__disable_export
+msgid "Forbid Export"
+msgstr "منع التصدير"
+
+#. module: cpss_access_management
+#: model:ir.model.fields,field_description:cpss_access_management.field_cpss_access_model_rule__disable_print
+msgid "Forbid Print"
+msgstr "منع الطباعة"
+
+#. module: cpss_access_management
+#: model:ir.model.fields,field_description:cpss_access_management.field_cpss_access_menu_rule__include_children
+msgid "Hide Sub-Menus"
+msgstr "إخفاء القوائم الفرعية"
+
+#. module: cpss_access_management
+#: model:ir.model.fields,field_description:cpss_access_management.field_cpss_access_profile__note
+msgid "Internal Note"
+msgstr "ملاحظة داخلية"
+
+#. module: cpss_access_management
+#: model:ir.model.fields.selection,name:cpss_access_management.selection__cpss_access_field_rule__attribute__invisible
+msgid "Invisible"
+msgstr "مخفي"
+
+#. module: cpss_access_management
+#: model:ir.model.fields,field_description:cpss_access_management.field_cpss_access_menu_rule__menu_id
+msgid "Menu"
+msgstr "القائمة"
+
+#. module: cpss_access_management
+#: model:ir.actions.act_window,name:cpss_access_management.action_access_menu_rule
+#: model:ir.model.fields,field_description:cpss_access_management.field_res_users__access_menu_rule_ids
+#: model_terms:ir.ui.view,arch_db:cpss_access_management.view_users_form_access_management
+msgid "Menu Restrictions"
+msgstr "قيود القوائم"
+
+#. module: cpss_access_management
+#: model:ir.model.fields,field_description:cpss_access_management.field_cpss_access_profile__menu_rule_ids
+#: model:ir.ui.menu,name:cpss_access_management.menu_access_menu_rules
+#: model_terms:ir.ui.view,arch_db:cpss_access_management.view_access_profile_form
+msgid "Menus"
+msgstr "القوائم"
+
+#. module: cpss_access_management
+#: model:ir.model.fields,field_description:cpss_access_management.field_cpss_access_field_rule__model_id
+#: model:ir.model.fields,field_description:cpss_access_management.field_cpss_access_model_rule__model_id
+msgid "Model"
+msgstr "النموذج"
+
+#. module: cpss_access_management
+#: model:ir.actions.act_window,name:cpss_access_management.action_access_model_rule
+#: model:ir.model.fields,field_description:cpss_access_management.field_res_users__access_model_rule_ids
+#: model_terms:ir.ui.view,arch_db:cpss_access_management.view_users_form_access_management
+msgid "Model Restrictions"
+msgstr "قيود النماذج"
+
+#. module: cpss_access_management
+#: model:ir.model.fields,field_description:cpss_access_management.field_cpss_access_profile__model_rule_ids
+#: model:ir.ui.menu,name:cpss_access_management.menu_access_model_rules
+#: model_terms:ir.ui.view,arch_db:cpss_access_management.view_access_profile_form
+msgid "Models"
+msgstr "النماذج"
+
+#. module: cpss_access_management
+#: model:ir.model.fields.selection,name:cpss_access_management.selection__cpss_access_field_rule__attribute__no_open
+msgid "No External Link"
+msgstr "بدون رابط خارجي"
+
+#. module: cpss_access_management
+#: model:ir.model.fields.selection,name:cpss_access_management.selection__cpss_access_field_rule__attribute__readonly
+msgid "Read-only"
+msgstr "للقراءة فقط"
+
+#. module: cpss_access_management
+#: model:ir.model.fields.selection,name:cpss_access_management.selection__cpss_access_field_rule__attribute__required
+msgid "Required"
+msgstr "إلزامي"
+
+#. module: cpss_access_management
+#: model:ir.model.fields,field_description:cpss_access_management.field_res_users__access_restriction_count
+#: model:ir.ui.menu,name:cpss_access_management.menu_access_restrictions
+msgid "Restrictions"
+msgstr "القيود"
+
+#. module: cpss_access_management
+#: model:ir.model.fields,field_description:cpss_access_management.field_cpss_access_field_rule__user_id
+#: model:ir.model.fields,field_description:cpss_access_management.field_cpss_access_menu_rule__user_id
+#: model:ir.model.fields,field_description:cpss_access_management.field_cpss_access_model_rule__user_id
+msgid "User"
+msgstr "المستخدم"
+
+#. module: cpss_access_management
+#: model:ir.actions.act_window,name:cpss_access_management.action_access_users
+#: model:ir.model.fields,field_description:cpss_access_management.field_cpss_access_profile__user_ids
+#: model:ir.ui.menu,name:cpss_access_management.menu_access_users
+#: model_terms:ir.ui.view,arch_db:cpss_access_management.view_access_profile_form
+msgid "Users"
+msgstr "المستخدمون"
+
+#. module: cpss_access_management
+#: code:addons/cpss_access_management/models/access_field_rule.py:0
+msgid ""
+"Field %(field)s cannot be required and invisible at the same time: the records could no longer be saved."
+msgstr "لا يمكن أن يكون الحقل %(field)s إلزامياً ومخفياً في الوقت نفسه: لن يعود بالإمكان حفظ السجلات."
+
+#. module: cpss_access_management
+#: code:addons/cpss_access_management/models/access_rule_mixin.py:0
+msgid ""
+"An access rule must target either an access profile or a user, not both and not neither."
+msgstr "يجب أن تستهدف قاعدة الصلاحيات ملف صلاحيات أو مستخدماً، وليس الاثنين معاً ولا لا شيء."
+
+#. module: cpss_access_management
+#: code:addons/cpss_access_management/models/base_access.py:0
+msgid ""
+"Your access profile does not allow you to %(operation)s records of type %(model)s."
+msgstr "لا يسمح لك ملف صلاحياتك بتنفيذ العملية %(operation)s على سجلات من نوع %(model)s."
+
+#. module: cpss_access_management
+#: code:addons/cpss_access_management/models/base_access.py:0
+msgid ""
+"Your access profile does not allow you to modify the following fields of %(model)s: %(fields)s."
+msgstr "لا يسمح لك ملف صلاحياتك بتعديل الحقول التالية في %(model)s: %(fields)s."
+
+#. module: cpss_access_management
+#: code:addons/cpss_access_management/models/ir_actions.py:0
+msgid ""
+"Your access profile does not allow you to print the reports of type %(model)s."
+msgstr "لا يسمح لك ملف صلاحياتك بطباعة تقارير من نوع %(model)s."
+
+#. module: cpss_access_management
+#: code:addons/cpss_access_management/models/base_access.py:0
+msgid "create"
+msgstr "إنشاء"
+
+#. module: cpss_access_management
+#: code:addons/cpss_access_management/models/base_access.py:0
+msgid "modify"
+msgstr "تعديل"
+
+#. module: cpss_access_management
+#: code:addons/cpss_access_management/models/base_access.py:0
+msgid "delete"
+msgstr "حذف"
+
+#. module: cpss_access_management
+#: code:addons/cpss_access_management/models/base_access.py:0
+msgid "duplicate"
+msgstr "نسخ"
+
+#. module: cpss_access_management
+#: code:addons/cpss_access_management/models/base_access.py:0
+msgid "export"
+msgstr "تصدير"
+
+#. module: cpss_access_management
+#: code:addons/cpss_access_management/models/base_access.py:0
+msgid "archive"
+msgstr "أرشفة"
+
+#. module: cpss_access_management
+#: code:addons/cpss_access_management/models/base_access.py:0
+msgid "print"
+msgstr "طباعة"
+
+#. module: cpss_access_management
+msgid "Access Rule: Button"
+msgstr "قاعدة صلاحيات: زر"
+
+#. module: cpss_access_management
+msgid "Access Rule: Report"
+msgstr "قاعدة صلاحيات: تقرير"
+
+#. module: cpss_access_management
+msgid "Access Rule: Domain"
+msgstr "قاعدة صلاحيات: نطاق"
+
+#. module: cpss_access_management
+msgid "Button"
+msgstr "زر"
+
+#. module: cpss_access_management
+msgid "Notebook Page"
+msgstr "تبويب"
+
+#. module: cpss_access_management
+msgid "Link"
+msgstr "رابط"
+
+#. module: cpss_access_management
+msgid "Element"
+msgstr "العنصر"
+
+#. module: cpss_access_management
+msgid "Technical Name"
+msgstr "الاسم التقني"
+
+#. module: cpss_access_management
+msgid "Report"
+msgstr "التقرير"
+
+#. module: cpss_access_management
+msgid "Description"
+msgstr "الوصف"
+
+#. module: cpss_access_management
+msgid "Domain"
+msgstr "النطاق"
+
+#. module: cpss_access_management
+msgid "Read"
+msgstr "قراءة"
+
+#. module: cpss_access_management
+msgid "Write"
+msgstr "كتابة"
+
+#. module: cpss_access_management
+msgid "Create"
+msgstr "إنشاء"
+
+#. module: cpss_access_management
+msgid "Delete"
+msgstr "حذف"
+
+#. module: cpss_access_management
+msgid "Hide Chatter"
+msgstr "إخفاء سجل المحادثة"
+
+#. module: cpss_access_management
+msgid "Hide Chatter Everywhere"
+msgstr "إخفاء سجل المحادثة في كل مكان"
+
+#. module: cpss_access_management
+msgid "Hide Filters"
+msgstr "إخفاء عوامل التصفية"
+
+#. module: cpss_access_management
+msgid "Hide Group By"
+msgstr "إخفاء التجميع"
+
+#. module: cpss_access_management
+msgid "Button Restrictions"
+msgstr "قيود الأزرار"
+
+#. module: cpss_access_management
+msgid "Report Restrictions"
+msgstr "قيود التقارير"
+
+#. module: cpss_access_management
+msgid "Domain Restrictions"
+msgstr "قيود النطاقات"
+
+#. module: cpss_access_management
+msgid "Buttons & Tabs"
+msgstr "الأزرار والتبويبات"
+
+#. module: cpss_access_management
+msgid "Reports"
+msgstr "التقارير"
+
+#. module: cpss_access_management
+msgid "Domains"
+msgstr "النطاقات"
+
+#. module: cpss_access_management
+msgid "Model Name"
+msgstr "اسم النموذج"
+
+#. module: cpss_access_management
+msgid "Users Count"
+msgstr "عدد المستخدمين"
+
+#. module: cpss_access_management
+msgid "Invalid domain for model %(model)s: %(error)s"
+msgstr "نطاق غير صالح للنموذج %(model)s: %(error)s"
+
+#. module: cpss_access_management
+msgid "Your access profile does not allow you to use this button."
+msgstr "لا يسمح لك ملف صلاحياتك باستخدام هذا الزر."
+
+#. module: cpss_access_management
+msgid "Your access profile does not allow you to print the report %(report)s."
+msgstr "لا يسمح لك ملف صلاحياتك بطباعة التقرير %(report)s."

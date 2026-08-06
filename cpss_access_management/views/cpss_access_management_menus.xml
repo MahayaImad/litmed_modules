@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <menuitem id="menu_cpss_access_management_root"
+              name="Access Management"
+              web_icon="cpss_access_management,static/description/icon.png"
+              groups="cpss_access_management.group_access_manager"
+              sequence="37"/>
+
+    <menuitem id="menu_access_profiles"
+              name="Access Profiles"
+              parent="menu_cpss_access_management_root"
+              action="action_access_profile"
+              sequence="10"/>
+
+    <menuitem id="menu_access_users"
+              name="Users"
+              parent="menu_cpss_access_management_root"
+              action="action_access_users"
+              sequence="20"/>
+
+    <menuitem id="menu_access_restrictions"
+              name="Restrictions"
+              parent="menu_cpss_access_management_root"
+              sequence="30"/>
+
+    <menuitem id="menu_access_menu_rules"
+              name="Menus"
+              parent="menu_access_restrictions"
+              action="action_access_menu_rule"
+              sequence="10"/>
+
+    <menuitem id="menu_access_model_rules"
+              name="Models"
+              parent="menu_access_restrictions"
+              action="action_access_model_rule"
+              sequence="20"/>
+
+    <menuitem id="menu_access_field_rules"
+              name="Fields"
+              parent="menu_access_restrictions"
+              action="action_access_field_rule"
+              sequence="30"/>
+
+    <menuitem id="menu_access_button_rules"
+              name="Buttons &amp; Tabs"
+              parent="menu_access_restrictions"
+              action="action_access_button_rule"
+              sequence="40"/>
+
+    <menuitem id="menu_access_report_rules"
+              name="Reports"
+              parent="menu_access_restrictions"
+              action="action_access_report_rule"
+              sequence="50"/>
+
+    <menuitem id="menu_access_domain_rules"
+              name="Domains"
+              parent="menu_access_restrictions"
+              action="action_access_domain_rule"
+              sequence="60"/>
+
+</odoo>

@@ -1,0 +1,413 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Access Management</title>
+<style type="text/css">
+/* ------------------------------------------------------------------ *
+ *  Docutils base (subset actually used by these pages)
+ * ------------------------------------------------------------------ */
+.first { margin-top: 0 ! important }
+.last, .with-subtitle { margin-bottom: 0 ! important }
+h1.title { text-align: center }
+h2.subtitle { text-align: center }
+hr.docutils { width: 75% }
+ol.simple, ul.simple { margin-bottom: 1em }
+ol.arabic { list-style: decimal }
+p.topic-title { font-weight: bold }
+pre.literal-block { margin-left: 2em ; margin-right: 2em }
+pre.literal-block, code { background-color: #eeeeee }
+table.docutils { margin-top: 0.5em ; margin-bottom: 0.5em }
+table.docutils td, table.docutils th { padding-left: 0.5em ; padding-right: 0.5em ; vertical-align: top }
+table.docutils th.field-name { font-weight: bold ; text-align: left ; white-space: nowrap ; padding-left: 0 }
+div.admonition, div.note, div.warning { margin: 2em ; border: medium outset ; padding: 1em }
+div.admonition p.admonition-title, div.note p.admonition-title { font-weight: bold ; font-family: sans-serif }
+div.warning p.admonition-title { color: red ; font-weight: bold ; font-family: sans-serif }
+.align-center { clear: both ; text-align: center }
+a.toc-backref { text-decoration: none ; color: inherit }
+
+/* ------------------------------------------------------------------ *
+ *  CPSS layer
+ * ------------------------------------------------------------------ */
+.cpss-doc {
+  --cpss-ink: #2b3a42;
+  --cpss-muted: #6b7c85;
+  --cpss-primary: #21455b;
+  --cpss-accent: #12856f;
+  --cpss-line: #dfe6ea;
+  --cpss-soft: #f6f8f9;
+  max-width: 980px;
+  margin: 0 auto;
+  padding: 0 16px 32px;
+  background: #ffffff;
+  color: var(--cpss-ink);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+               "Helvetica Neue", Arial, sans-serif;
+  font-size: 15px;
+  line-height: 1.65;
+  box-sizing: border-box;
+}
+.cpss-doc *, .cpss-doc *:before, .cpss-doc *:after { box-sizing: inherit }
+
+.cpss-hero {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  flex-wrap: wrap;
+  padding: 26px 24px;
+  margin: 0 0 26px;
+  border: 1px solid var(--cpss-line);
+  border-top: 4px solid var(--cpss-primary);
+  border-radius: 8px;
+  background: var(--cpss-soft);
+}
+.cpss-hero-icon { width: 84px; height: 84px; flex: 0 0 auto; max-width: 100% }
+.cpss-hero-text { flex: 1 1 320px; min-width: 0 }
+.cpss-doc h1.title {
+  text-align: left;
+  margin: 0 0 6px;
+  font-size: 30px;
+  line-height: 1.2;
+  font-weight: 700;
+  color: var(--cpss-primary);
+}
+.cpss-summary { margin: 0 0 14px; font-size: 17px; color: var(--cpss-muted) }
+.cpss-tech { margin: 0; font-size: 13px; color: var(--cpss-muted) }
+.cpss-tech code { background: transparent; font-size: 13px }
+
+.cpss-badges { margin: 0 0 12px; padding: 0; line-height: 2.1 }
+.cpss-badge {
+  display: inline-block;
+  padding: 2px 10px;
+  margin: 0 6px 0 0;
+  border-radius: 11px;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: .2px;
+  white-space: nowrap;
+  color: #fff;
+  background: var(--cpss-primary);
+  text-decoration: none;
+}
+.cpss-badge.is-license { background: var(--cpss-accent) }
+.cpss-badge.is-odoo { background: #714b67 }
+.cpss-badge.is-version { background: #4a6572 }
+.cpss-badge.is-warn { background: #b4531f }
+a.cpss-badge:hover { opacity: .88 }
+
+.cpss-doc div.section > h1 {
+  margin: 34px 0 12px;
+  padding-bottom: 8px;
+  border-bottom: 2px solid var(--cpss-line);
+  font-size: 21px;
+  font-weight: 700;
+  color: var(--cpss-primary);
+}
+.cpss-doc div.section > h2 {
+  margin: 22px 0 10px;
+  font-size: 17px;
+  font-weight: 700;
+  color: var(--cpss-ink);
+}
+.cpss-doc p { margin: 0 0 12px }
+.cpss-doc ul, .cpss-doc ol { margin: 0 0 12px; padding-left: 24px }
+.cpss-doc li { margin-bottom: 6px }
+.cpss-doc code {
+  padding: 1px 5px;
+  border-radius: 3px;
+  background: #eef2f4;
+  font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+  font-size: 13px;
+  color: #123;
+}
+.cpss-doc pre.literal-block {
+  margin: 0 0 14px;
+  padding: 12px 14px;
+  overflow-x: auto;
+  border: 1px solid var(--cpss-line);
+  border-radius: 6px;
+  background: #f2f5f6;
+  font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+  font-size: 13px;
+  line-height: 1.5;
+  color: #123;
+}
+
+.cpss-table-wrap { overflow-x: auto; margin: 0 0 16px }
+.cpss-doc table.cpss-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+.cpss-doc table.cpss-table th,
+.cpss-doc table.cpss-table td {
+  padding: 9px 12px;
+  border: 1px solid var(--cpss-line);
+  text-align: left;
+  vertical-align: top;
+}
+.cpss-doc table.cpss-table th {
+  background: var(--cpss-soft);
+  font-weight: 700;
+  color: var(--cpss-primary);
+}
+.cpss-doc table.cpss-table tbody tr:nth-child(even) td { background: #fbfcfc }
+
+.cpss-doc div.contents {
+  margin: 0 0 24px;
+  padding: 14px 18px;
+  border: 1px solid var(--cpss-line);
+  border-radius: 6px;
+  background: var(--cpss-soft);
+}
+.cpss-doc div.contents ul { margin: 0; padding-left: 20px }
+.cpss-doc div.contents li { margin-bottom: 3px }
+.cpss-doc div.contents a { color: var(--cpss-primary); text-decoration: none }
+.cpss-doc div.contents a:hover { text-decoration: underline }
+
+.cpss-note {
+  margin: 0 0 16px;
+  padding: 12px 16px;
+  border-left: 4px solid var(--cpss-accent);
+  border-radius: 0 6px 6px 0;
+  background: #eef7f4;
+}
+.cpss-warn {
+  margin: 0 0 16px;
+  padding: 12px 16px;
+  border-left: 4px solid #b4531f;
+  border-radius: 0 6px 6px 0;
+  background: #fdf2ea;
+}
+.cpss-note p:last-child, .cpss-warn p:last-child { margin-bottom: 0 }
+
+.cpss-footer {
+  margin-top: 38px;
+  padding-top: 16px;
+  border-top: 1px solid var(--cpss-line);
+  font-size: 13px;
+  color: var(--cpss-muted);
+}
+.cpss-footer a { color: var(--cpss-primary) }
+
+@media (max-width: 640px) {
+  .cpss-doc h1.title { font-size: 24px }
+  .cpss-hero { padding: 20px 16px }
+  .cpss-hero-icon { width: 64px; height: 64px }
+}
+</style>
+</head>
+<body>
+<div class="document cpss-doc" id="access-management">
+
+<div class="cpss-hero">
+<img class="cpss-hero-icon" src="icon.png" alt="Access Management" />
+<div class="cpss-hero-text">
+<h1 class="title">Access Management</h1>
+<p class="cpss-summary">Restrict menus, models and fields per user from a single screen.</p>
+<p class="cpss-badges"><span class="cpss-badge is-version">Odoo 19.0.1.1.0</span>
+<span class="cpss-badge is-odoo">Odoo 19.0 Community</span>
+<span class="cpss-badge is-license">License: LGPL-3</span>
+<a class="cpss-badge" href="https://www.cpss-dz.com">CPSS</a></p>
+<p class="cpss-tech">Technical name: <code>cpss_access_management</code> &nbsp;&middot;&nbsp; Depends on: <code>base, web</code></p>
+</div>
+</div>
+
+
+<p>Centralises in one application everything a functional administrator needs to
+restrict what a user may see and do, <strong>without writing a line of XML or
+Python</strong>: hide menus, forbid create / edit / delete / duplicate / export /
+archive on a model, hide the action and print menus, turn any field invisible,
+read-only, required or link-less, hide buttons, notebook tabs, the chatter, the
+filters and the group by entries, forbid a given report, and narrow the records
+a user may reach with a dynamic domain.</p>
+
+
+<p><strong>Table of contents</strong></p>
+<div class="contents local topic" id="contents">
+<ul class="simple">
+<li><a class="reference internal" href="#overview" id="toc-entry-1">Overview</a></li>
+<li><a class="reference internal" href="#what-you-can-restrict" id="toc-entry-2">What you can restrict</a></li>
+<li><a class="reference internal" href="#design-principles" id="toc-entry-3">Design principles</a></li>
+<li><a class="reference internal" href="#two-choices-worth-explaining" id="toc-entry-4">Two choices worth explaining</a></li>
+<li><a class="reference internal" href="#security-groups" id="toc-entry-5">Security groups</a></li>
+<li><a class="reference internal" href="#installation" id="toc-entry-6">Installation</a></li>
+<li><a class="reference internal" href="#configuration" id="toc-entry-7">Configuration</a></li>
+<li><a class="reference internal" href="#things-to-know" id="toc-entry-8">Things to know</a></li>
+<li><a class="reference internal" href="#known-issues-roadmap" id="toc-entry-9">Known issues / Roadmap</a></li>
+<li><a class="reference internal" href="#automated-tests" id="toc-entry-10">Automated tests</a></li>
+<li><a class="reference internal" href="#bug-tracker" id="toc-entry-11">Bug tracker</a></li>
+<li><a class="reference internal" href="#credits" id="toc-entry-12">Credits</a></li>
+</ul>
+</div>
+
+<div class="section" id="overview">
+<h1><a class="toc-backref" href="#toc-entry-1">Overview</a></h1>
+
+<p>Access rights in Odoo are designed around groups. As soon as two users must
+share a group but not the same screens, the standard answer is a technical
+group, a record rule and an inherited view &mdash; three artefacts to write, to
+version and to maintain. This module replaces them with a configuration screen.</p>
+<ul class="simple">
+<li><strong>Access profiles</strong> &mdash; a reusable set of restrictions shared by several users.</li>
+<li><strong>Per-user restrictions</strong> &mdash; the same families, configured directly on the user form.</li>
+<li>Both sources are merged with a <strong>&ldquo;most restrictive wins&rdquo;</strong> rule: nothing ever re-authorises what another rule forbids.</li>
+</ul>
+</div>
+<div class="section" id="what-you-can-restrict">
+<h1><a class="toc-backref" href="#toc-entry-2">What you can restrict</a></h1>
+<div class="cpss-table-wrap">
+<table class="cpss-table docutils">
+<thead><tr><th>Profile tab</th><th>Model</th><th>Effect</th></tr></thead>
+<tbody>
+<tr><td>Menus</td><td><code>cpss.access.menu.rule</code></td><td>Hides a menu, and by default its whole sub-tree.</td></tr>
+<tr><td>Models</td><td><code>cpss.access.model.rule</code></td><td>Forbids <em>create</em>, <em>edit</em>, <em>delete</em>, <em>duplicate</em>, <em>export</em>, <em>archive</em>, the action menu and printing; also hides the chatter, the filters and the group by entries of that model.</td></tr>
+<tr><td>Fields</td><td><code>cpss.access.field.rule</code></td><td>Makes a field <em>invisible</em>, <em>readonly</em>, <em>required</em>, or removes the external link (<code>no_open</code>).</td></tr>
+<tr><td>Buttons &amp; Tabs</td><td><code>cpss.access.button.rule</code></td><td>Hides a button, a notebook page or a named link.</td></tr>
+<tr><td>Reports</td><td><code>cpss.access.report.rule</code></td><td>Forbids one precise report (a whole model is handled through <em>Forbid Print</em>).</td></tr>
+<tr><td>Domains</td><td><code>cpss.access.domain.rule</code></td><td>Narrows the records a user may reach, per mode (read / write / create / unlink).</td></tr>
+<tr><td>Users</td><td>&mdash;</td><td>Assigns the profile to the relevant users.</td></tr>
+</tbody>
+</table>
+</div>
+<p>The <strong>Hide Chatter Everywhere</strong> checkbox, on the profile as well
+as on the user, hides the chatter on every model at once.</p>
+
+</div>
+<div class="section" id="design-principles">
+<h1><a class="toc-backref" href="#toc-entry-3">Design principles</a></h1>
+<ol class="arabic simple">
+<li><strong>Two layers, always.</strong> The interface is cleaned up for comfort (view <code>create</code> / <code>edit</code> / <code>delete</code> / <code>duplicate</code> / <code>export_xlsx</code> attributes, attributes injected on fields), and the ORM raises an <code>AccessError</code> (<code>check_access</code>, <code>write</code>, <code>copy</code>, <code>export_data</code>). Hiding a button is <strong>not</strong> security: only the second layer blocks a direct RPC call.</li>
+<li><strong>One cached resolver.</strong> <code>cpss.access.resolver._get_restrictions</code> is decorated with <code>tools.ormcache('uid')</code>: every view load and every access check is a dictionary lookup. Any write on a profile, a rule or a user calls <code>registry.clear_cache()</code>, so a change is live on the next request, without restarting.</li>
+<li><strong>A database with no rule pays nothing.</strong> Before that resolution, <code>_has_any_restriction()</code> answers in a single query, cached for the whole registry.</li>
+<li><strong>Lockout-proof.</strong> The superuser, administrators (<code>base.group_erp_manager</code>) and members of the <em>Access Manager</em> group are <strong>never</strong> restricted, whatever the configuration. Nobody can lock themselves out.</li>
+<li><strong>Filtering outside the native caches.</strong> <code>ir.ui.menu.load_menus</code>, <code>_visible_menu_ids</code> and <code>ir.actions.actions.get_bindings</code> are cached by Odoo on the user's <em>set of groups</em>. The module therefore filters <em>around</em> those methods, never inside them &mdash; otherwise two users sharing the same groups would share the same menus.</li>
+</ol>
+</div>
+<div class="section" id="two-choices-worth-explaining">
+<h1><a class="toc-backref" href="#toc-entry-4">Two choices worth explaining</a></h1>
+
+<h2>Buttons are blocked server side</h2>
+<p>A <em>Button</em> rule carries the <code>name</code> of the button, that is
+the method it calls &mdash; exactly what the web client posts to
+<code>/web/dataset/call_button</code>. The controller is overridden to refuse
+the call: hiding the button and blocking the method are the same rule. Notebook
+pages and links have no server-side counterpart: they are containers, and what
+they contain is protected by the field and model rules.</p>
+<h2>Domains do not go through <code>ir.rule</code> records</h2>
+<p>In Odoo, record rules coming from different groups are combined with
+<strong>OR</strong>: adding a rule through a technical group would
+<em>widen</em> what the user sees, the exact opposite of the goal. The module
+overrides <code>ir.rule._compute_domain</code> (cached per user) and combines
+its domain with <strong>AND</strong> on top of the native result. It is the only
+way to express &ldquo;on top of everything else, this user sees less&rdquo;.</p>
+
+</div>
+<div class="section" id="security-groups">
+<h1><a class="toc-backref" href="#toc-entry-5">Security groups</a></h1>
+<div class="cpss-table-wrap">
+<table class="cpss-table docutils">
+<thead><tr><th>Group</th><th>Rights</th></tr></thead>
+<tbody>
+<tr><td><code>cpss_access_management.group_access_manager</code><br/>(Access Manager)</td><td>Configures the profiles and the per-user restrictions. Is never restricted itself. Automatically implied by <code>base.group_system</code>.</td></tr>
+</tbody>
+</table>
+</div>
+</div>
+<div class="section" id="installation">
+<h1><a class="toc-backref" href="#toc-entry-6">Installation</a></h1>
+
+<p>Standard installation, no external Python dependency and no configuration
+file to touch.</p>
+<pre class="literal-block">odoo-bin -d mydb -i cpss_access_management</pre>
+<p>Dependencies: <code>base</code>, <code>web</code>. The module has no demo
+data, so it behaves identically on a demo database and on a production one.</p>
+
+</div>
+<div class="section" id="configuration">
+<h1><a class="toc-backref" href="#toc-entry-7">Configuration</a></h1>
+<ol class="arabic simple">
+<li>Give the functional administrator the <em>Access Manager</em> group (Settings &gt; Users &amp; Companies &gt; Users).</li>
+<li>Open <em>Access Management &gt; Access Profiles</em> and create a profile, for instance <em>Limited Salesperson</em>.</li>
+<li>Fill in the tabs you need (Menus, Models, Fields, Buttons &amp; Tabs, Reports, Domains), then assign the users in the <em>Users</em> tab.</li>
+<li>For a one-off restriction, use the <em>Access Management</em> tab directly on the user form instead of creating a profile.</li>
+<li>Log in as the restricted user to check the result &mdash; a change is effective on the next request, no restart needed.</li>
+</ol>
+</div>
+<div class="section" id="things-to-know">
+<h1><a class="toc-backref" href="#toc-entry-8">Things to know</a></h1>
+<ul class="simple">
+<li>A <em>readonly</em> field is also blocked <strong>on write</strong> server side: a restricted user cannot bypass the attribute with an RPC call. Same for <em>invisible</em>.</li>
+<li>A field cannot be <em>required</em> and <em>invisible</em> for the same target: a constraint forbids it, otherwise the record could never be saved.</li>
+<li>View nodes are altered in <code>get_view()</code> and never in <code>_get_view()</code>, whose result is shared between users by the view cache.</li>
+<li>The module inherits <code>base</code>, therefore <strong>every</strong> model: each entry point starts with a cache read and returns immediately when the user carries no restriction, which is the case for the vast majority of requests.</li>
+</ul>
+</div>
+<div class="section" id="known-issues-roadmap">
+<h1><a class="toc-backref" href="#toc-entry-9">Known issues / Roadmap</a></h1>
+
+<p>Hiding the <strong>Add Custom Filter</strong> button (and its group-by
+counterpart) has <strong>no server-side extension point</strong>: it would
+require a JavaScript patch of the search component. This is deliberately not
+done &mdash; a patch that cannot be tested in depth on that component would break
+the search bar for every model.</p>
+<p>The <em>predefined</em> filters and group-bys of a model <strong>are</strong>
+removed from the <code>arch</code> server side, and the domain rules remain the
+real protection: a custom filter never reveals a record excluded by a
+domain.</p>
+
+</div>
+<div class="section" id="automated-tests">
+<h1><a class="toc-backref" href="#toc-entry-10">Automated tests</a></h1>
+
+<p>The automated test suite lives in the <code>tests/</code> folder. It is
+<strong>never loaded in production</strong>: Odoo only imports that package when
+the server runs with <code>--test-enable</code> or <code>--test-tags</code>, and
+the tests are neither listed in the manifest nor imported by the module. There
+is nothing to remove before going live.</p>
+<ul class="simple">
+<li><code>test_access_management.py</code> &mdash; per-user resolution, profile / user merge, menus, models, fields, and enforcement on both layers.</li>
+<li><code>test_access_advanced.py</code> &mdash; buttons through the real <code>/web/dataset/call_button</code> route, notebook pages, chatter, filters, reports and record domains.</li>
+</ul>
+</div>
+<div class="section" id="bug-tracker">
+<h1><a class="toc-backref" href="#toc-entry-11">Bug tracker</a></h1>
+
+<p>This module is published and maintained by <strong>CPSS</strong>.</p>
+<p>Before reporting a problem, please check the module version against the one
+installed on your database (Apps &gt; the module &gt; technical information) and
+reproduce the issue on a database without customisation.</p>
+<p>Report bugs, ask for an evolution or request an installation through
+<a href="https://www.cpss-dz.com">www.cpss-dz.com</a>. Do not contact the
+contributors directly about support or help with technical issues.</p>
+
+</div>
+<div class="section" id="credits">
+<h1><a class="toc-backref" href="#toc-entry-12">Credits</a></h1>
+
+<h2>Author</h2>
+<ul class="simple">
+<li><a href="https://www.cpss-dz.com">CPSS</a> &mdash; Algiers, Algeria</li>
+</ul>
+<h2>Languages</h2>
+<p>Shipped translated into <strong>French</strong> (<code>fr.po</code>) and
+<strong>Arabic</strong> (<code>ar.po</code>): labels, help texts, buttons, menus,
+filters, wizards, error messages and PDF reports.</p>
+<h2>Maintainer</h2>
+<p>This module is maintained by CPSS for Odoo 19.0 Community. It is designed to
+be installed on a standard Odoo database, without any modification of the
+Odoo source code.</p>
+
+</div>
+
+<div class="cpss-footer">
+<p>&copy; 2026 <a href="https://www.cpss-dz.com">CPSS</a> &mdash; All rights reserved.
+Published under the LGPL-3 license.</p>
+<p>Support and technical questions: <a href="https://www.cpss-dz.com">www.cpss-dz.com</a>.
+Please do not contact the contributors directly.</p>
+</div>
+
+</div>
+</body>
+</html>

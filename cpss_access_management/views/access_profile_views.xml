@@ -1,0 +1,147 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="view_access_profile_list" model="ir.ui.view">
+        <field name="name">cpss.access.profile.list</field>
+        <field name="model">cpss.access.profile</field>
+        <field name="arch" type="xml">
+            <list>
+                <field name="sequence" widget="handle"/>
+                <field name="name"/>
+                <field name="user_count"/>
+                <field name="rule_count"/>
+                <field name="company_id" groups="base.group_multi_company" optional="show"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_access_profile_form" model="ir.ui.view">
+        <field name="name">cpss.access.profile.form</field>
+        <field name="model">cpss.access.profile</field>
+        <field name="arch" type="xml">
+            <form>
+                <sheet>
+                    <div class="oe_button_box" name="button_box">
+                        <button name="action_view_users" type="object"
+                                class="oe_stat_button" icon="fa-users">
+                            <field name="user_count" widget="statinfo" string="Users"/>
+                        </button>
+                    </div>
+                    <widget name="web_ribbon" title="Archived" bg_color="text-bg-danger"
+                            invisible="active"/>
+                    <div class="oe_title">
+                        <h1><field name="name" placeholder="e.g. Limited Salesperson"/></h1>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="active" invisible="1"/>
+                            <field name="sequence"/>
+                        </group>
+                        <group>
+                            <field name="company_id" groups="base.group_multi_company"/>
+                            <field name="hide_chatter"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Menus" name="menus">
+                            <field name="menu_rule_ids" nolabel="1"
+                                   context="{'default_company_id': company_id}">
+                                <list editable="bottom">
+                                    <field name="menu_id" options="{'no_create': True}"/>
+                                    <field name="include_children"/>
+                                </list>
+                            </field>
+                        </page>
+                        <page string="Models" name="models">
+                            <field name="model_rule_ids" nolabel="1"
+                                   context="{'default_company_id': company_id}">
+                                <list editable="bottom">
+                                    <field name="model_id" options="{'no_create': True}"/>
+                                    <field name="disable_create"/>
+                                    <field name="disable_edit"/>
+                                    <field name="disable_delete"/>
+                                    <field name="disable_duplicate"/>
+                                    <field name="disable_export"/>
+                                    <field name="disable_archive"/>
+                                    <field name="disable_actions"/>
+                                    <field name="disable_print"/>
+                                    <field name="hide_chatter"/>
+                                    <field name="hide_filters"/>
+                                    <field name="hide_group_by"/>
+                                </list>
+                            </field>
+                        </page>
+                        <page string="Fields" name="fields">
+                            <field name="field_rule_ids" nolabel="1"
+                                   context="{'default_company_id': company_id}">
+                                <list editable="bottom">
+                                    <field name="model_id" options="{'no_create': True}"/>
+                                    <field name="field_id" options="{'no_create': True}"/>
+                                    <field name="attribute"/>
+                                </list>
+                            </field>
+                        </page>
+                        <page string="Buttons &amp; Tabs" name="buttons">
+                            <field name="button_rule_ids" nolabel="1"
+                                   context="{'default_company_id': company_id}">
+                                <list editable="bottom">
+                                    <field name="model_id" options="{'no_create': True}"/>
+                                    <field name="element_type"/>
+                                    <field name="element_name"/>
+                                </list>
+                            </field>
+                        </page>
+                        <page string="Reports" name="reports">
+                            <field name="report_rule_ids" nolabel="1"
+                                   context="{'default_company_id': company_id}">
+                                <list editable="bottom">
+                                    <field name="report_id" options="{'no_create': True}"/>
+                                    <field name="model_name"/>
+                                </list>
+                            </field>
+                        </page>
+                        <page string="Domains" name="domains">
+                            <field name="domain_rule_ids" nolabel="1"
+                                   context="{'default_company_id': company_id}"/>
+                        </page>
+                        <page string="Users" name="users">
+                            <field name="user_ids" nolabel="1" widget="many2many_tags"/>
+                        </page>
+                        <page string="Notes" name="notes">
+                            <field name="note" nolabel="1"
+                                   placeholder="Why this profile exists, who asked for it..."/>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_access_profile_search" model="ir.ui.view">
+        <field name="name">cpss.access.profile.search</field>
+        <field name="model">cpss.access.profile</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="name"/>
+                <field name="user_ids"/>
+                <filter string="Archived" name="inactive" domain="[('active', '=', False)]"/>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_access_profile" model="ir.actions.act_window">
+        <field name="name">Access Profiles</field>
+        <field name="res_model">cpss.access.profile</field>
+        <field name="view_mode">list,form</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Create your first access profile
+            </p>
+            <p>
+                A profile bundles the menus, models and fields a group of users
+                must not use, and can then be assigned to as many users as needed.
+            </p>
+        </field>
+    </record>
+
+</odoo>
